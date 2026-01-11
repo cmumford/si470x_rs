@@ -1,6 +1,13 @@
 [target.riscv32imac-unknown-none-elf]
 runner = "espflash flash --monitor --chip esp32c6"
-
+rustflags = [
+  "-C",
+  "link-arg=-Tlinkall.x",      # Includes memory.x + regions + trap setup
+  "-C",
+  "link-arg=--fatal-warnings", # Optional: stricter linking
+  "-C",
+  "force-frame-pointers=yes",  # Recommended for backtraces
+]
 [env]
 
 [build]
