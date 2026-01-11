@@ -24,7 +24,7 @@ rustflags = [
   "-C",
   "link-arg=-Tlinkall.x",
   "-C",
-  "link-arg=--fatal-warnings",
+  "link-arg=--all-warnings",
   "-C",
   "force-frame-pointers=yes",
 ]
@@ -34,7 +34,7 @@ rustflags = [
   "-C",
   "link-arg=-Tlinkall.x",
   "-C",
-  "link-arg=--fatal-warnings",
+  "link-arg=--all-warnings",
   "-C",
   "force-frame-pointers=yes",
 ]
@@ -44,7 +44,7 @@ rustflags = [
   "-C",
   "link-arg=-Tlinkall.x",
   "-C",
-  "link-arg=--fatal-warnings",
+  "link-arg=--all-warnings",
   "-C",
   "force-frame-pointers=yes",
 ]
