@@ -76,3 +76,29 @@ esp32s3 = [
     "esp-println/esp32s3",
     "esp-rtos/esp32s3",
 ]
+
+[[example]]
+name = "simple"
+path = "examples/simple.rs"
+required-features = ["blocking"]
+
+# [[example]]
+# name = "linux_async"
+# path = "examples/linux_async.rs"
+# required-features = ["async"]
+
+# # Repeat for each ESP variant
+# [[example]]
+# name = "esp32_blocking"
+# path = "examples/esp/esp32_blocking.rs"
+# required-features = ["esp32", "blocking"]
+
+# [[example]]
+# name = "esp32_async"
+# path = "examples/esp/esp32_async.rs"
+# required-features = ["esp32", "async"]
+
+# [[example]]
+# name = "esp32c3_blocking"
+# path = "examples/esp/esp32c3_blocking.rs"
+# required-features = ["esp32c3", "blocking"]

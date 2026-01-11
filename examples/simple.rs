@@ -27,8 +27,8 @@ fn main() -> ! {
         esp_hal::i2c::master::Config::default().with_frequency(Rate::from_khz(100)),
     )
     .unwrap()
-    .with_scl(peripherals.GPIO20)
-    .with_sda(peripherals.GPIO19);
+    .with_scl(peripherals.GPIO1)
+    .with_sda(peripherals.GPIO2);
 
     let _dev = Si470x::new(i2c);
 

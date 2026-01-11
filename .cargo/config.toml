@@ -1,14 +1,55 @@
+[target.riscv32imc-unknown-none-elf]
+rustflags = [
+  "-C",
+  "link-arg=-Tlinkall.x",
+  "-C",
+  "link-arg=--fatal-warnings",
+  "-C",
+  "force-frame-pointers=yes",
+]
+
 [target.riscv32imac-unknown-none-elf]
 runner = "espflash flash --monitor --chip esp32c6"
 rustflags = [
   "-C",
-  "link-arg=-Tlinkall.x",      # Includes memory.x + regions + trap setup
+  "link-arg=-Tlinkall.x",
   "-C",
-  "link-arg=--fatal-warnings", # Optional: stricter linking
+  "link-arg=--fatal-warnings",
   "-C",
-  "force-frame-pointers=yes",  # Recommended for backtraces
+  "force-frame-pointers=yes",
 ]
-[env]
+
+[target.xtensa-esp32-none-elf]
+rustflags = [
+  "-C",
+  "link-arg=-Tlinkall.x",
+  "-C",
+  "link-arg=--fatal-warnings",
+  "-C",
+  "force-frame-pointers=yes",
+]
+
+[target.xtensa-esp32s2-none-elf]
+rustflags = [
+  "-C",
+  "link-arg=-Tlinkall.x",
+  "-C",
+  "link-arg=--fatal-warnings",
+  "-C",
+  "force-frame-pointers=yes",
+]
+
+[target.xtensa-esp32s3-none-elf]
+rustflags = [
+  "-C",
+  "link-arg=-Tlinkall.x",
+  "-C",
+  "link-arg=--fatal-warnings",
+  "-C",
+  "force-frame-pointers=yes",
+]
+
+#[env]
 
 [build]
 rustflags = [
@@ -17,8 +58,6 @@ rustflags = [
   "-C",
   "force-frame-pointers",
 ]
-
-target = "riscv32imac-unknown-none-elf"
 
 [unstable]
 build-std = ["alloc", "core"]
