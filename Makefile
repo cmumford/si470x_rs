@@ -2,7 +2,7 @@
 ESP_CHIPS := esp32c3 esp32c6 esp32h2
 
 .PHONY: default
-default: simple
+default: examples
 
 .PHONY: simple-esp32c3
 simple-esp32c3:
@@ -28,8 +28,9 @@ simple-esp32s2:
 simple-esp32s3:
 	cargo build --features=esp32s3 --target xtensa-esp32s3-none-elf --release --example simple
 
-.PHONY: simple
-simple: simple-esp32c3 simple-esp32c6 simple-esp32h2 simple-esp32 simple-esp32s2 simple-esp32s3
+.PHONY: examples
+examples: simple-esp32c3 simple-esp32c6 simple-esp32h2 simple-esp32 simple-esp32s2 simple-esp32s3
+
 .PHONY: clean
 clean:
 	cargo clean
