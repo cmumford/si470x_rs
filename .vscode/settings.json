@@ -2,9 +2,6 @@
   "rust-analyzer.cargo.allTargets": false,
   "rust-analyzer.cargo.target": "riscv32imac-unknown-none-elf",
   "rust-analyzer.cargo.features": [
-    "ble",
-    "radio",
-    "wifi",
     "esp32c6",
   ],
   "rust-analyzer.server.extraEnv": {
