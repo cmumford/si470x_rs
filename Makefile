@@ -54,6 +54,10 @@ simple-esp32s3:
 examples: simple-esp32c3 simple-esp32c6 simple-esp32h2 simple-esp32 simple-esp32s2 simple-esp32s3 \
 		  simple-esp32c3-async simple-esp32c6-async simple-esp32h2-async simple-esp32-async simple-esp32s2-async simple-esp32s3-async
 
+.PHONY: flash-simple-esp32c6
+flash-simple-esp32c6:
+	cargo espflash flash --example simple --monitor --baud=921600 --target riscv32imac-unknown-none-elf $(RELEASE) --features=esp32c6
+
 .PHONY: flash-simple-esp32c6-async
 flash-simple-esp32c6-async:
 	cargo espflash flash --example simple_async --monitor --baud=921600 --target riscv32imac-unknown-none-elf $(RELEASE) --features=esp32c6,async

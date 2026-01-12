@@ -8,8 +8,12 @@
 
 use esp_hal::time::{Duration, Instant};
 use esp_hal::{clock::CpuClock, i2c::master::I2c, main, time::Rate};
-use log::info;
+use log::{LevelFilter, info};
 use si470x::Si470x;
+
+// This creates a default app-descriptor required by the esp-idf bootloader.
+// For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
+esp_bootloader_esp_idf::esp_app_desc!();
 
 #[panic_handler]
 fn panic(_: &core::panic::PanicInfo) -> ! {
@@ -18,6 +22,8 @@ fn panic(_: &core::panic::PanicInfo) -> ! {
 
 #[main]
 fn main() -> ! {
+    esp_println::logger::init_logger(LevelFilter::Info);
+
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
 
@@ -33,7 +39,8 @@ fn main() -> ! {
     let _dev = Si470x::new(i2c);
 
     loop {
+        info!("Waiting...");
         let delay_start = Instant::now();
-        while delay_start.elapsed() < Duration::from_millis(500) {}
+        while delay_start.elapsed() < Duration::from_millis(1_000) {}
     }
 }
