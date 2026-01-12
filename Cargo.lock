@@ -1254,6 +1254,7 @@ dependencies = [
 name = "si470x"
 version = "0.1.0"
 dependencies = [
+ "cfg-if",
  "embassy-executor",
  "embassy-time",
  "embedded-hal 1.0.0",

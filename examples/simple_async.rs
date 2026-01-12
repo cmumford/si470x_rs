@@ -32,11 +32,16 @@ async fn main(_spawner: Spawner) -> ! {
 
     esp_alloc::heap_allocator!(size: 32 * 1024);
 
-    // Initialize embassy time driver (usually TIMG0 for async)
-    let timg0 = TimerGroup::new(peripherals.TIMG1);
-    use esp_hal::interrupt::software::SoftwareInterruptControl;
-    let software_interrupt = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
-    esp_rtos::start(timg0.timer0, software_interrupt.software_interrupt0);
+    let timg1 = TimerGroup::new(peripherals.TIMG1);
+    cfg_if::cfg_if! {
+        if #[cfg(any(feature = "esp32",feature = "esp32s2",feature = "esp32s3"))] {
+            esp_rtos::start(timg1.timer0);
+        } else {
+            use esp_hal::interrupt::software::SoftwareInterruptControl;
+            let software_interrupt = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+            esp_rtos::start(timg1.timer0, software_interrupt.software_interrupt0);
+        }
+    }
 
     info!("[main] Initializing I2C");
     let i2c = I2c::new(
@@ -44,8 +49,8 @@ async fn main(_spawner: Spawner) -> ! {
         esp_hal::i2c::master::Config::default().with_frequency(Rate::from_khz(100)),
     )
     .unwrap()
-    .with_scl(peripherals.GPIO19)
-    .with_sda(peripherals.GPIO20);
+    .with_scl(peripherals.GPIO1)
+    .with_sda(peripherals.GPIO2);
 
     let _dev = Si470x::new(i2c);
 

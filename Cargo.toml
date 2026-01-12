@@ -12,6 +12,7 @@ embedded-hal = "1.0.0"
 embedded-hal-async = { version = "1.0.0", optional = true }
 
 [dev-dependencies]
+cfg-if = "1.0"
 embassy-executor = { version = "0.9.1" }
 embassy-time = { version = "0.5.0", features = ["generic-queue-8"] }
 esp-alloc = "0.9.0"
@@ -93,19 +94,3 @@ required-features = ["async"]
 # name = "linux_async"
 # path = "examples/linux_async.rs"
 # required-features = ["async"]
-
-# # Repeat for each ESP variant
-# [[example]]
-# name = "esp32_blocking"
-# path = "examples/esp/esp32_blocking.rs"
-# required-features = ["esp32", "blocking"]
-
-# [[example]]
-# name = "esp32_async"
-# path = "examples/esp/esp32_async.rs"
-# required-features = ["esp32", "async"]
-
-# [[example]]
-# name = "esp32c3_blocking"
-# path = "examples/esp/esp32c3_blocking.rs"
-# required-features = ["esp32c3", "blocking"]

@@ -34,21 +34,22 @@ simple-esp32c3-async:
 .PHONY: simple-esp32c6-async
 simple-esp32c6-async:
 	cargo build --features=esp32c6,async --target riscv32imac-unknown-none-elf $(RELEASE) --example simple_async
+
 .PHONY: simple-esp32h2-async
-simple-esp32h2:
-	cargo build --features=esp32h2,async --target riscv32imac-unknown-none-elf $(RELEASE) --example simple
+simple-esp32h2-:
+	cargo build --features=esp32h2,async --target riscv32imac-unknown-none-elf $(RELEASE) --example simple_async
 
 .PHONY: simple-esp32-async
-simple-esp32:
-	cargo build --features=esp32,async --target xtensa-esp32-none-elf $(RELEASE) --example simple
+simple-esp32-async:
+	cargo build --features=esp32,async --target xtensa-esp32-none-elf $(RELEASE) --example simple_async
 
 .PHONY: simple-esp32s2-async
-simple-esp32s2:
-	cargo build --features=esp32s2,async --target xtensa-esp32s2-none-elf $(RELEASE) --example simple
+simple-esp32s2-async:
+	cargo build --features=esp32s2,async --target xtensa-esp32s2-none-elf $(RELEASE) --example simple_async
 
 .PHONY: simple-esp32s3-async
-simple-esp32s3:
-	cargo build --features=esp32s3,async --target xtensa-esp32s3-none-elf $(RELEASE) --example simple
+simple-esp32s3-async:
+	cargo build --features=esp32s3,async --target xtensa-esp32s3-none-elf $(RELEASE) --example simple_async
 
 .PHONY: examples
 examples: simple-esp32c3 simple-esp32c6 simple-esp32h2 simple-esp32 simple-esp32s2 simple-esp32s3 \
