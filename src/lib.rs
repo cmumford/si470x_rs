@@ -1,10 +1,10 @@
 #![no_std]
 
-//#[cfg(feature = "blocking")]
-// use embedded_hal::i2c::I2c as BlockingI2c;
+#[cfg(feature = "blocking")]
+use embedded_hal::i2c::I2c as BlockingI2c;
 
-// #[cfg(feature = "async")]
-// use embedded_hal_async::i2c::I2c as AsyncI2c;
+#[cfg(feature = "async")]
+use embedded_hal_async::i2c::I2c as AsyncI2c;
 
 // Optional: marker types to distinguish modes at compile time
 pub struct BlockingMode;
@@ -14,32 +14,34 @@ pub struct Si470x<I2C> {
     i2c: I2C,
 }
 
+const DEVICE_ADDRESS: u8 = 0x10;
+
 impl<I2C> Si470x<I2C> {
     // Constructor
     pub fn new(i2c: I2C) -> Self {
         Self { i2c }
     }
+
+    // Blocking version – always available when I2C implements BlockingI2c
+    pub fn ping_blocking(&mut self) -> Result<(), I2C::Error>
+    where
+        I2C: BlockingI2c,
+    {
+        match self.i2c.write(DEVICE_ADDRESS, &[]) {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
+
+    // Async version – only compiled when "async" feature is enabled
+    #[cfg(feature = "async")]
+    pub async fn ping_async(&mut self) -> Result<(), I2C::Error>
+    where
+        I2C: AsyncI2c,
+    {
+        match self.i2c.write(DEVICE_ADDRESS, &[]).await {
+            Ok(()) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
 }
-
-// impl<I2C> Si470x<I2C, BlockingMode>
-// where
-//     I2C: BlockingI2c,
-// {
-//     pub fn read_register(&mut self, reg: u8) -> Result<u8, I2C::Error> {
-//         let mut buf = [0u8; 1];
-//         self.i2c.write_read(0x42, &[reg], &mut buf)?;
-//         Ok(buf[0])
-//     }
-// }
-
-// #[cfg(feature = "async")]
-// impl<I2C> Si470x<I2C, AsyncMode>
-// where
-//     I2C: AsyncI2c,
-// {
-//     pub async fn read_register(&mut self, reg: u8) -> Result<u8, I2C::Error> {
-//         let mut buf = [0u8; 1];
-//         self.i2c.write_read(0x42, &[reg], &mut buf).await?;
-//         Ok(buf[0])
-//     }
-// }
