@@ -1,7 +1,7 @@
 #[cfg(feature = "async")]
 use embedded_hal_async::i2c::I2c as AsyncI2c;
 
-use super::driver_common::{ChipInfo, Register, SI470X_I2C_ADDRESS, Si470xError};
+use super::driver_common::{BitOps, ChipInfo, PowerCfg, Register, SI470X_I2C_ADDRESS, Si470xError};
 
 pub struct Si470x<I2C> {
     i2c: I2C,
@@ -42,6 +42,17 @@ where
             .map_err(Si470xError::I2c)?;
 
         Ok(())
+    }
+
+    pub async fn set_enable(&mut self, enable: bool) -> Result<(), Si470xError<I2C::Error>> {
+        let mut reg = self.read_register(Register::PowerCfg).await?;
+        // Note: Datasheet says "The ENABLE bit should never be written to a 0".
+        if enable {
+            reg = reg.set(PowerCfg::ENABLE).clear(PowerCfg::DISABLE);
+        } else {
+            reg = reg.set(PowerCfg::ENABLE).set(PowerCfg::DISABLE);
+        }
+        self.write_register(Register::PowerCfg, reg).await
     }
 
     pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {

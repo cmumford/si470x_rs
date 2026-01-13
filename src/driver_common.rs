@@ -32,6 +32,52 @@ impl From<Register> for u8 {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+#[repr(u16)]
+pub enum PowerCfg {
+    DSMUTE = 1 << 15,
+    DMUTE = 1 << 14,
+    MONO = 1 << 13,
+    RDSM = 1 << 11,
+    SKMODE = 1 << 10,
+    SEEKUP = 1 << 9,
+    SEEK = 1 << 8,
+    DISABLE = 1 << 6,
+    ENABLE = 1 << 0,
+}
+
+impl From<PowerCfg> for u16 {
+    fn from(flag: PowerCfg) -> u16 {
+        flag as u16
+    }
+}
+
+pub trait BitOps {
+    fn set(self, flag: impl Into<u16>) -> Self;
+    fn clear(self, flag: impl Into<u16>) -> Self;
+    fn toggle(self, flag: impl Into<u16>) -> Self;
+    fn contains(self, flag: impl Into<u16>) -> bool;
+}
+
+impl BitOps for u16 {
+    #[inline(always)]
+    fn set(self, flag: impl Into<u16>) -> u16 {
+        self | flag.into()
+    }
+    #[inline(always)]
+    fn clear(self, flag: impl Into<u16>) -> u16 {
+        self & !flag.into()
+    }
+    #[inline(always)]
+    fn toggle(self, flag: impl Into<u16>) -> u16 {
+        self ^ flag.into()
+    }
+    #[inline(always)]
+    fn contains(self, flag: impl Into<u16>) -> bool {
+        (self & flag.into()) != 0
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct ChipInfo {
     pub revision: u8,
