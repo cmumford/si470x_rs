@@ -108,10 +108,10 @@ async fn main(_spawner: Spawner) -> ! {
     let mut dev = Si470x::new(i2c);
 
     info!("Pinging...");
-    dev.ping_async().await.unwrap();
+    dev.ping().await.unwrap();
     info!("  ping success");
 
-    let chip_info = dev.get_chip_info_async().await.unwrap();
+    let chip_info = dev.get_chip_info().await.unwrap();
     info!("{:?}", chip_info);
 
     loop {

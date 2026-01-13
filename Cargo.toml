@@ -3,7 +3,7 @@ name = "si470x"
 version = "0.1.0"
 edition = "2024"
 authors = ["Chris Mumford <cmumford@cmumford.com>"]
-description = "Pure Rust driver for the Si470X FM radio receiver ICs"
+description = "Pure Rust Si470x FM radio driver (blocking + async support)"
 readme = "README.md"
 keywords = ["radio", "fm", "am", "driver", "si4702", "si4703"]
 
