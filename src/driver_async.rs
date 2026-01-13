@@ -86,6 +86,16 @@ where
         self.write_register(Register::PowerCfg, reg).await
     }
 
+    pub async fn set_mute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
+        let mut reg = self.read_register(Register::PowerCfg).await?;
+        if muted {
+            reg = reg.set(PowerCfg::DMUTE);
+        } else {
+            reg = reg.clear(PowerCfg::DMUTE);
+        }
+        self.write_register(Register::PowerCfg, reg).await
+    }
+
     pub async fn set_volume(&mut self, volume: u8) -> Result<(), Si470xError<I2C::Error>> {
         let reg = self.read_register_bytes(Register::SysConfig2).await?;
         let mut config = SysConfig2::from_bytes(reg);
