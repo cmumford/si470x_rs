@@ -13,7 +13,7 @@ pub struct Si470x<I2C> {
     i2c: I2C,
 }
 
-const DEVICE_ADDRESS: u8 = 0x10;
+const SI470X_I2C_ADDRESS: u8 = 0x10;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
@@ -61,7 +61,7 @@ impl<I2C> Si470x<I2C> {
         let reg_byte: u8 = reg.into();
         let mut buffer = [0u8; 2];
         self.i2c
-            .write_read(DEVICE_ADDRESS, &[reg_byte], &mut buffer)?;
+            .write_read(SI470X_I2C_ADDRESS, &[reg_byte], &mut buffer)?;
         Ok(u16::from_be_bytes(buffer))
     }
 
@@ -73,7 +73,7 @@ impl<I2C> Si470x<I2C> {
         let reg_byte: u8 = reg.into();
         let mut buffer = [0u8; 2];
         self.i2c
-            .write_read(DEVICE_ADDRESS, &[reg_byte], &mut buffer)
+            .write_read(SI470X_I2C_ADDRESS, &[reg_byte], &mut buffer)
             .await?;
         Ok(u16::from_be_bytes(buffer))
     }
@@ -83,7 +83,7 @@ impl<I2C> Si470x<I2C> {
     {
         let reg_byte: u8 = reg.into();
         let buf = [reg_byte, value];
-        self.i2c.write(DEVICE_ADDRESS, &buf)?;
+        self.i2c.write(SI470X_I2C_ADDRESS, &buf)?;
 
         Ok(())
     }
@@ -95,7 +95,7 @@ impl<I2C> Si470x<I2C> {
     {
         let reg_byte: u8 = reg.into();
         let buf = [reg_byte, value];
-        self.i2c.write(DEVICE_ADDRESS, &buf).await?;
+        self.i2c.write(SI470X_I2C_ADDRESS, &buf).await?;
 
         Ok(())
     }
@@ -104,7 +104,7 @@ impl<I2C> Si470x<I2C> {
     where
         I2C: BlockingI2c,
     {
-        match self.i2c.write(DEVICE_ADDRESS, &[]) {
+        match self.i2c.write(SI470X_I2C_ADDRESS, &[]) {
             Ok(()) => Ok(()),
             Err(e) => Err(e),
         }
@@ -115,7 +115,7 @@ impl<I2C> Si470x<I2C> {
     where
         I2C: AsyncI2c,
     {
-        match self.i2c.write(DEVICE_ADDRESS, &[]).await {
+        match self.i2c.write(SI470X_I2C_ADDRESS, &[]).await {
             Ok(()) => Ok(()),
             Err(e) => Err(e),
         }
