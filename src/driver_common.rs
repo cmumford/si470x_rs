@@ -53,12 +53,22 @@ impl From<PowerCfg> for u16 {
     }
 }
 
+#[derive(Specifier)]
+#[bits = 2]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum ChannelSpacing {
+    KHz200 = 0b00,
+    KHz100 = 0b01,
+    KHz50 = 0b10,
+}
+
 #[bitfield]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SysConfig2 {
     pub seekth: B8,
     pub band: B2,
-    pub space: B2,
+    #[bits = 2]
+    pub space: ChannelSpacing,
     pub volume: B4,
 }
 

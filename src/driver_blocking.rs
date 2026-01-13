@@ -88,6 +88,16 @@ where
         self.write_register_bytes(Register::SysConfig2, config.into())
     }
 
+    pub fn set_channel_spacing(
+        &mut self,
+        channel_spacing: ChannelSpacing,
+    ) -> Result<(), Si470xError<I2C::Error>> {
+        let reg = self.read_register_bytes(Register::SysConfig2)?;
+        let mut config = SysConfig2::from_bytes(reg);
+        config.set_space(channel_spacing);
+        self.write_register_bytes(Register::SysConfig2, config.into())
+    }
+
     pub fn set_oscillator_enable(&mut self, enable: bool) -> Result<(), Si470xError<I2C::Error>> {
         let reg = self.read_register_bytes(Register::Test1)?;
         let mut config = Test1::from_bytes(reg);
