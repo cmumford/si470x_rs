@@ -1,7 +1,11 @@
 #![allow(dead_code)]
 
 use core::fmt;
-use embedded_hal::i2c::SevenBitAddress;
+use embedded_hal::{
+    delay::DelayNs,
+    digital::{OutputPin, StatefulOutputPin},
+    i2c::SevenBitAddress,
+};
 use modular_bitfield::prelude::*;
 
 pub const SI470X_I2C_ADDRESS: SevenBitAddress = 0x10;
@@ -128,4 +132,45 @@ impl<E: fmt::Debug> fmt::Display for Si470xError<E> {
             Self::InvalidResponse => write!(f, "Invalid response from device"),
         }
     }
+}
+
+// Resets the Si470x radio chip into 2-wire (I²C) mode using what the datasheet
+// calls busmode selection method 1.
+//
+// # Type parameters
+// - `RST`: Reset pin (active low)
+// - `SDA`: SDA pin
+// - `SEN`: SEN pin
+// - `D`: Delay provider
+//
+// All pins must implement `OutputPin`.
+pub fn reset_radio_for_i2c<RST, SDA, SEN, D>(
+    rst: &mut RST,
+    sda: &mut SDA,
+    sen: Option<&mut SEN>,
+    delay: &mut D,
+) -> Result<(), ()>
+where
+    RST: OutputPin + StatefulOutputPin,
+    SDA: OutputPin + StatefulOutputPin,
+    SEN: OutputPin + StatefulOutputPin,
+    D: DelayNs,
+{
+    // Set initial state for 2-wire mode
+    rst.set_low().map_err(|_| ())?;
+    sda.set_low().map_err(|_| ())?;
+    if let Some(sen_pin) = sen {
+        sen_pin.set_high().map_err(|_| ())?;
+    }
+
+    // Hold for ≥5 ms
+    delay.delay_ms(5);
+
+    // Release reset
+    rst.set_high().map_err(|_| ())?;
+
+    // Wait for chip to stabilize (≥5 ms)
+    delay.delay_ms(5);
+
+    Ok(())
 }

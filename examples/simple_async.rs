@@ -11,13 +11,13 @@ use embassy_time::Timer;
 use esp_hal::{
     clock::CpuClock,
     delay::Delay,
-    gpio::{AnyPin, DriveMode, Level, Output, OutputConfig},
+    gpio::{Level, Output, OutputConfig},
     i2c::master::I2c,
     time::Rate,
     timer::timg::TimerGroup,
 };
 use log::{LevelFilter, info};
-use si470x::Si470x;
+use si470x::{Si470x, driver_common::reset_radio_for_i2c};
 
 extern crate alloc;
 
@@ -28,35 +28,6 @@ esp_bootloader_esp_idf::esp_app_desc!();
 #[panic_handler]
 fn panic(_: &core::panic::PanicInfo) -> ! {
     loop {}
-}
-
-fn reset_radio<'d>(
-    rst_gpio: impl Into<AnyPin<'d>>,
-    sda_gpio: impl Into<AnyPin<'d>>,
-    sen_gpio: impl Into<AnyPin<'d>>,
-) {
-    let mut rst_output = Output::new(
-        rst_gpio.into(),
-        Level::High,
-        OutputConfig::default().with_drive_mode(DriveMode::PushPull),
-    );
-    let mut sda_output = Output::new(
-        sda_gpio.into(),
-        Level::High,
-        OutputConfig::default().with_drive_mode(DriveMode::PushPull),
-    );
-    let mut sen_output = Output::new(
-        sen_gpio.into(),
-        Level::High,
-        OutputConfig::default().with_drive_mode(DriveMode::PushPull),
-    );
-    rst_output.set_low();
-    sda_output.set_low();
-    sen_output.set_high(); // To select 2-wire mode.
-    let delay = Delay::new();
-    delay.delay(esp_hal::time::Duration::from_millis(5));
-    rst_output.set_high();
-    delay.delay(esp_hal::time::Duration::from_millis(5));
 }
 
 #[esp_rtos::main]
@@ -80,7 +51,12 @@ async fn main(_spawner: Spawner) -> ! {
         }
     }
 
-    reset_radio(rst_gpio, sda_gpio.reborrow(), sen_gpio);
+    // Reset the Si4703 and put into I2C mode.
+    let mut rst_pin = Output::new(rst_gpio, Level::High, OutputConfig::default());
+    let mut sda_pin = Output::new(sda_gpio.reborrow(), Level::High, OutputConfig::default());
+    let mut sen_pin = Output::new(sen_gpio, Level::High, OutputConfig::default());
+    let mut delay = Delay::new();
+    reset_radio_for_i2c(&mut rst_pin, &mut sda_pin, Some(&mut sen_pin), &mut delay).unwrap();
 
     esp_alloc::heap_allocator!(size: 32 * 1024);
 

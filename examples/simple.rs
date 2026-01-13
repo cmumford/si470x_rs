@@ -9,13 +9,13 @@
 use esp_hal::{
     clock::CpuClock,
     delay::Delay,
-    gpio::{AnyPin, DriveMode, Level, Output, OutputConfig},
+    gpio::{Level, Output, OutputConfig},
     i2c::master::I2c,
     main,
     time::{Duration, Instant, Rate},
 };
 use log::{LevelFilter, info};
-use si470x::Si470x;
+use si470x::{Si470x, driver_common::reset_radio_for_i2c};
 
 // This creates a default app-descriptor required by the esp-idf bootloader.
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
@@ -26,34 +26,6 @@ fn panic(_: &core::panic::PanicInfo) -> ! {
     loop {}
 }
 
-fn reset_radio<'d>(
-    rst_gpio: impl Into<AnyPin<'d>>,
-    sda_gpio: impl Into<AnyPin<'d>>,
-    sen_gpio: impl Into<AnyPin<'d>>,
-) {
-    let mut rst_output = Output::new(
-        rst_gpio.into(),
-        Level::High,
-        OutputConfig::default().with_drive_mode(DriveMode::PushPull),
-    );
-    let mut sda_output = Output::new(
-        sda_gpio.into(),
-        Level::High,
-        OutputConfig::default().with_drive_mode(DriveMode::PushPull),
-    );
-    let mut sen_output = Output::new(
-        sen_gpio.into(),
-        Level::High,
-        OutputConfig::default().with_drive_mode(DriveMode::PushPull),
-    );
-    rst_output.set_low();
-    sda_output.set_low();
-    sen_output.set_high(); // To select 2-wire mode.
-    let delay = Delay::new();
-    delay.delay(Duration::from_millis(5));
-    rst_output.set_high();
-    delay.delay(Duration::from_millis(5));
-}
 #[main]
 fn main() -> ! {
     esp_println::logger::init_logger(LevelFilter::Info);
@@ -75,7 +47,12 @@ fn main() -> ! {
         }
     }
 
-    reset_radio(rst_gpio, sda_gpio.reborrow(), sen_gpio);
+    // Reset the Si4703 and put into I2C mode.
+    let mut rst_pin = Output::new(rst_gpio, Level::High, OutputConfig::default());
+    let mut sda_pin = Output::new(sda_gpio.reborrow(), Level::High, OutputConfig::default());
+    let mut sen_pin = Output::new(sen_gpio, Level::High, OutputConfig::default());
+    let mut delay = Delay::new();
+    reset_radio_for_i2c(&mut rst_pin, &mut sda_pin, Some(&mut sen_pin), &mut delay).unwrap();
 
     info!("[main] Initializing I2C");
     let i2c = I2c::new(
