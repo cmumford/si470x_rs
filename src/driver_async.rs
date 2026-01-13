@@ -47,7 +47,7 @@ where
     pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
         let reg_val = self.read_register(Register::ChipId).await?;
         Ok(ChipInfo {
-            revision: ((reg_val >> 10) & 0x3F) as u8,
+            revision: (reg_val >> 10) as u8,
             device: ((reg_val >> 6) & 0x0F) as u8,
             firmware: (reg_val & 0x3F) as u8,
         })
