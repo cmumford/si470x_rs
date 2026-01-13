@@ -62,6 +62,15 @@ pub struct SysConfig2 {
     pub volume: B4,
 }
 
+#[bitfield]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Test1 {
+    pub xoscen: bool,
+    pub ahizen: bool,
+    #[skip]
+    unused: B14,
+}
+
 pub trait BitOps {
     fn set(self, flag: impl Into<u16>) -> Self;
     fn clear(self, flag: impl Into<u16>) -> Self;

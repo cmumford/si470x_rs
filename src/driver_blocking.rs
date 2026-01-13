@@ -1,6 +1,4 @@
-use super::driver_common::{
-    BitOps, ChipInfo, PowerCfg, Register, SI470X_I2C_ADDRESS, Si470xError, SysConfig2,
-};
+use super::driver_common::*;
 use embedded_hal::i2c::I2c;
 
 pub struct Si470x<I2C> {
@@ -88,6 +86,13 @@ where
         let mut config = SysConfig2::from_bytes(reg);
         config.set_volume(volume);
         self.write_register_bytes(Register::SysConfig2, config.into())
+    }
+
+    pub fn set_oscillator_enable(&mut self, enable: bool) -> Result<(), Si470xError<I2C::Error>> {
+        let reg = self.read_register_bytes(Register::Test1)?;
+        let mut config = Test1::from_bytes(reg);
+        config.set_xoscen(enable);
+        self.write_register_bytes(Register::Test1, config.into())
     }
 
     pub fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
