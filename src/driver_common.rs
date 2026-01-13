@@ -1,6 +1,9 @@
 #![allow(dead_code)]
 
 use core::fmt;
+use embedded_hal::i2c::SevenBitAddress;
+
+pub const SI470X_I2C_ADDRESS: SevenBitAddress = 0x10;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]

@@ -1,9 +1,7 @@
 #[cfg(feature = "async")]
 use embedded_hal_async::i2c::I2c as AsyncI2c;
 
-use super::driver_common::{ChipInfo, Register, Si470xError};
-
-const SI470X_I2C_ADDRESS: u8 = 0x10;
+use super::driver_common::{ChipInfo, Register, SI470X_I2C_ADDRESS, Si470xError};
 
 pub struct Si470x<I2C> {
     i2c: I2C,

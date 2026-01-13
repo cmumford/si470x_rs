@@ -1,8 +1,5 @@
-use embedded_hal::i2c::{I2c, SevenBitAddress};
-
-use super::driver_common::{ChipInfo, Register, Si470xError};
-
-const SI470X_I2C_ADDRESS: SevenBitAddress = 0x10;
+use super::driver_common::{ChipInfo, Register, SI470X_I2C_ADDRESS, Si470xError};
+use embedded_hal::i2c::I2c;
 
 pub struct Si470x<I2C> {
     i2c: I2C,
