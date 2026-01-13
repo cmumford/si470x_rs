@@ -77,6 +77,7 @@ impl<I2C> Si470x<I2C> {
             .await?;
         Ok(u16::from_be_bytes(buffer))
     }
+
     pub fn write_register(&mut self, reg: Register, value: u8) -> Result<(), I2C::Error>
     where
         I2C: BlockingI2c,
