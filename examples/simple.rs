@@ -89,8 +89,11 @@ fn main() -> ! {
     let mut dev = Si470x::new(i2c);
 
     info!("Pinging...");
-    dev.ping_blocking().unwrap();
+    dev.ping().unwrap();
     info!("  ping success");
+
+    let chip_info = dev.get_chip_info().unwrap();
+    info!("{:?}", chip_info);
 
     loop {
         info!("Waiting...");

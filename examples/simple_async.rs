@@ -110,6 +110,10 @@ async fn main(_spawner: Spawner) -> ! {
     info!("Pinging...");
     dev.ping_async().await.unwrap();
     info!("  ping success");
+
+    let chip_info = dev.get_chip_info_async().await.unwrap();
+    info!("{:?}", chip_info);
+
     loop {
         info!("Waiting...");
         Timer::after(embassy_time::Duration::from_millis(1_000)).await;
