@@ -2,6 +2,7 @@
 
 use core::fmt;
 use embedded_hal::i2c::SevenBitAddress;
+use modular_bitfield::prelude::*;
 
 pub const SI470X_I2C_ADDRESS: SevenBitAddress = 0x10;
 
@@ -50,6 +51,15 @@ impl From<PowerCfg> for u16 {
     fn from(flag: PowerCfg) -> u16 {
         flag as u16
     }
+}
+
+#[bitfield]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SysConfig2 {
+    pub seekth: B8,
+    pub band: B2,
+    pub space: B2,
+    pub volume: B4,
 }
 
 pub trait BitOps {
