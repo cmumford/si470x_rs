@@ -10,51 +10,95 @@ use modular_bitfield::prelude::*;
 
 pub const SI470X_I2C_ADDRESS: SevenBitAddress = 0x10;
 
+// When reading from the Si470x, reading starts at register 0Ah (STATUSRSSI), and
+// reads through to 0Fh (RDSD), and the wraps around to 00h through 09h.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
-pub enum Register {
-    DeviceId = 0x00,
-    ChipId = 0x01,
-    PowerCfg = 0x02,
-    Channel = 0x03,
-    SysConfig1 = 0x04,
-    SysConfig2 = 0x05,
-    SysConfig3 = 0x06,
-    Test1 = 0x07,
-    Test2 = 0x08,
-    BootConfig = 0x09,
-    StatusRssi = 0x0A,
-    ReadChan = 0x0B,
-    RdsA = 0x0C,
-    RdsB = 0x0D,
-    RdsC = 0x0E,
-    RdsD = 0x0F,
+pub enum ReadRegIdx {
+    StatusRssi = 0x00,
+    ReadChan = 0x01,
+    RdsA = 0x02,
+    RdsB = 0x03,
+    RdsC = 0x04,
+    RdsD = 0x05,
+    DeviceId = 0x06,
+    ChipId = 0x07,
+    PowerCfg = 0x08,
+    Channel = 0x09,
+    SysConfig1 = 0x0A,
+    SysConfig2 = 0x0B,
+    SysConfig3 = 0x0C,
+    Test1 = 0x0D,
+    Test2 = 0x0E,
+    BootConfig = 0x0F,
 }
 
-impl From<Register> for u8 {
-    fn from(reg: Register) -> u8 {
+impl From<ReadRegIdx> for u8 {
+    fn from(reg: ReadRegIdx) -> u8 {
         reg as u8
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-#[repr(u16)]
-pub enum PowerCfg {
-    DSMUTE = 1 << 15,
-    DMUTE = 1 << 14,
-    MONO = 1 << 13,
-    RDSM = 1 << 11,
-    SKMODE = 1 << 10,
-    SEEKUP = 1 << 9,
-    SEEK = 1 << 8,
-    DISABLE = 1 << 6,
-    ENABLE = 1 << 0,
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DeviceId {
+    pub pn: B4,
+    pub mfgid: B12,
 }
 
-impl From<PowerCfg> for u16 {
-    fn from(flag: PowerCfg) -> u16 {
-        flag as u16
-    }
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ChipId {
+    pub rev: B6,
+    pub dev: B4,
+    pub firmware: B6,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PowerCfg {
+    pub dsmute: bool,
+    pub dmute: bool,
+    pub mono: bool,
+    #[skip]
+    unused: bool,
+    pub rdsm: bool,
+    pub skmode: bool,
+    pub seekup: bool,
+    pub seek: bool,
+    #[skip]
+    unused: bool,
+    pub disable: bool,
+    #[skip]
+    unused: B5,
+    pub enable: bool,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Channel {
+    pub tune: bool,
+    #[skip]
+    unused: B5,
+    pub chan: B10,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SysConfig1 {
+    pub rdsien: bool,
+    pub stcien: bool,
+    #[skip]
+    unused: bool,
+    pub rds: bool,
+    pub de: bool,
+    pub agcd: bool,
+    #[skip]
+    unused: B2,
+    pub blndadj: B2,
+    pub gpio3: B2,
+    pub gpio2: B2,
+    pub gpio1: B2,
 }
 
 #[derive(Specifier)]
@@ -66,7 +110,7 @@ pub enum ChannelSpacing {
     KHz50 = 0b10,
 }
 
-#[bitfield]
+#[bitfield(bits = 16)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SysConfig2 {
     pub seekth: B8,
@@ -76,7 +120,19 @@ pub struct SysConfig2 {
     pub volume: B4,
 }
 
-#[bitfield]
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SysConfig3 {
+    pub smuter: B2,
+    pub smutea: B2,
+    #[skip]
+    unused: B3,
+    pub volext: bool,
+    pub sksnr: B4,
+    pub skcnt: B4,
+}
+
+#[bitfield(bits = 16)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Test1 {
     pub xoscen: bool,
@@ -85,30 +141,64 @@ pub struct Test1 {
     unused: B14,
 }
 
-pub trait BitOps {
-    fn set(self, flag: impl Into<u16>) -> Self;
-    fn clear(self, flag: impl Into<u16>) -> Self;
-    fn toggle(self, flag: impl Into<u16>) -> Self;
-    fn contains(self, flag: impl Into<u16>) -> bool;
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Test2 {
+    #[skip]
+    unused: B16,
 }
 
-impl BitOps for u16 {
-    #[inline(always)]
-    fn set(self, flag: impl Into<u16>) -> u16 {
-        self | flag.into()
-    }
-    #[inline(always)]
-    fn clear(self, flag: impl Into<u16>) -> u16 {
-        self & !flag.into()
-    }
-    #[inline(always)]
-    fn toggle(self, flag: impl Into<u16>) -> u16 {
-        self ^ flag.into()
-    }
-    #[inline(always)]
-    fn contains(self, flag: impl Into<u16>) -> bool {
-        (self & flag.into()) != 0
-    }
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct BootConfig {
+    #[skip]
+    unused: B16,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct StatusRssi {
+    pub rdsrr: bool,
+    pub stc: bool,
+    pub sf_bl: bool,
+    pub afcrl: bool,
+    pub rdss: bool,
+    pub blera: B2,
+    pub st: bool,
+    pub rssi: B8,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ReadChan {
+    pub blerb: B2,
+    pub blerc: B2,
+    pub blerd: B2,
+    pub readchan: B10,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RdsA {
+    pub rdsa: B16,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RdsB {
+    pub rdsb: B16,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RdsC {
+    pub rdsc: B16,
+}
+
+#[bitfield(bits = 16)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RdsD {
+    pub rdsd: B16,
 }
 
 #[derive(Debug, Clone, Copy)]

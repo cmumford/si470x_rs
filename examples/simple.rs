@@ -64,6 +64,7 @@ fn main() -> ! {
     .with_sda(sda_gpio);
 
     let mut dev = Si470x::new(i2c);
+    dev.set_enable(true).unwrap();
 
     info!("Pinging...");
     dev.ping().unwrap();

@@ -87,6 +87,10 @@ async fn main(_spawner: Spawner) -> ! {
     dev.ping().await.unwrap();
     info!("  ping success");
 
+    dev.set_enable(true).await.unwrap();
+    Timer::after(embassy_time::Duration::from_millis(200)).await;
+    info!("Radio enabled");
+
     let chip_info = dev.get_chip_info().await.unwrap();
     info!("{:?}", chip_info);
 

@@ -9,7 +9,7 @@ pub mod driver_async;
 
 // Re-export the public API so users can do `use si470x::Si470x`
 pub use driver_blocking::Si470x as BlockingSi470x;
-pub use driver_common::{ChipInfo, Register, Si470xError};
+pub use driver_common::{ChipInfo, Si470xError};
 
 #[cfg(feature = "async")]
 pub use driver_async::Si470x as AsyncSi470x;
