@@ -2,6 +2,7 @@
 use embedded_hal_async::i2c::I2c as AsyncI2c;
 
 use super::driver_common::*;
+use log::info;
 
 pub struct Si470x<I2C> {
     i2c: I2C,
@@ -19,6 +20,15 @@ where
     pub async fn read_all_registers(&mut self) -> Result<[u8; 32], Si470xError<I2C::Error>> {
         let mut registers = [0u8; 32];
 
+        // "For read operations, the device acknowledge is followed by an eight
+        // bit data word shifted out on falling SCLK edges. An internal address
+        // counter automatically increments to allow continuous data byte
+        // reads, starting with the upper byte of register 0Ah, followed by the
+        // lower byte of register 0Ah, and onward until the lower byte of the
+        // last register is reached. The internal address counter then
+        // automatically wraps around to the upperbyte of register 00h and
+        // proceeds from there until continuous reads cease."
+
         // See command above ReadRegIdx for order of data.
         self.i2c
             .read(SI470X_I2C_ADDRESS, &mut registers)
@@ -33,12 +43,17 @@ where
         &mut self,
         registers: [u8; 32],
     ) -> Result<(), Si470xError<I2C::Error>> {
+        // "An internal address counter automatically increments to allow
+        // continuous data byte writes, starting with the upper byte of register
+        // 02h, followed by the lower byte of register 02h, and onward until
+        // the lower byte of the last register is reached. The internal address
+        // counter then automatically wraps around to the upper byte of
+        // register 00h and proceeds from there until continuous writes end."
         const START_IDX: usize = 2 * ReadRegIdx::PowerCfg as usize;
         const END_IDX: usize = 2 * ReadRegIdx::Test1 as usize;
 
-        let write_slice = &registers[START_IDX..END_IDX];
         self.i2c
-            .write(SI470X_I2C_ADDRESS, write_slice)
+            .write(SI470X_I2C_ADDRESS, &registers[START_IDX..END_IDX + 2])
             .await
             .map_err(Si470xError::I2c)?;
 
@@ -56,8 +71,7 @@ where
         config.set_enable(true);
         config.set_disable(!enable);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers).await
     }
 
@@ -68,8 +82,7 @@ where
 
         config.set_dmute(muted);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers).await
     }
 
@@ -81,8 +94,7 @@ where
 
         config.set_volume(volume);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers).await
     }
 
@@ -96,9 +108,7 @@ where
 
         config.set_space(channel_spacing);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
-
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers).await
     }
 
@@ -112,20 +122,35 @@ where
 
         test1.set_xoscen(enable);
 
-        let updated_bytes = test1.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
-
+        registers[idx..idx + 2].copy_from_slice(&test1.into_bytes());
         self.write_all_registers(registers).await
     }
 
     pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
         let registers: [u8; 32] = self.read_all_registers().await.unwrap();
-        let idx = 2 * ReadRegIdx::ChipId as usize;
+        let idx = 2 * ReadRegIdx::DeviceId as usize;
         let chip_id = ChipId::from_bytes([registers[idx], registers[idx + 1]]);
         Ok(ChipInfo {
             revision: chip_id.rev(),
             device: chip_id.dev(),
             firmware: chip_id.firmware(),
+        })
+    }
+
+    pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
+        let registers: [u8; 32] = self.read_all_registers().await.unwrap();
+        let idx = 2 * ReadRegIdx::DeviceId as usize;
+        let data = [registers[idx], registers[idx + 1]];
+        info!("DEVICEID data: {:02X?}", data);
+        let device_id = DeviceId::from_bytes([registers[idx], registers[idx + 1]]);
+        info!(
+            "Device ID: chip:{} dev:{}",
+            device_id.pn(),
+            device_id.mfgid()
+        );
+        Ok(DeviceInfo {
+            pn: device_id.pn(),
+            mfgid: device_id.mfgid(),
         })
     }
 

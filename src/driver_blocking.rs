@@ -32,7 +32,7 @@ where
         const START_IDX: usize = 2 * ReadRegIdx::PowerCfg as usize;
         const END_IDX: usize = 2 * ReadRegIdx::Test1 as usize;
 
-        let write_slice = &registers[START_IDX..END_IDX];
+        let write_slice = &registers[START_IDX..END_IDX + 2];
         self.i2c
             .write(SI470X_I2C_ADDRESS, write_slice)
             .map_err(Si470xError::I2c)?;
@@ -51,8 +51,7 @@ where
         config.set_enable(true);
         config.set_disable(!enable);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers)
     }
 
@@ -63,8 +62,7 @@ where
 
         config.set_dmute(muted);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers)
     }
 
@@ -76,8 +74,7 @@ where
 
         config.set_volume(volume);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers)
     }
 
@@ -91,9 +88,7 @@ where
 
         config.set_space(channel_spacing);
 
-        let updated_bytes = config.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
-
+        registers[idx..idx + 2].copy_from_slice(&config.into_bytes());
         self.write_all_registers(registers)
     }
 
@@ -104,9 +99,7 @@ where
 
         test1.set_xoscen(enable);
 
-        let updated_bytes = test1.into_bytes();
-        registers[idx..idx + 2].copy_from_slice(&updated_bytes);
-
+        registers[idx..idx + 2].copy_from_slice(&test1.into_bytes());
         self.write_all_registers(registers)
     }
 

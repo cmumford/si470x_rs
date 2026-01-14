@@ -83,16 +83,39 @@ async fn main(_spawner: Spawner) -> ! {
 
     let mut dev = Si470x::new(i2c);
 
-    info!("Pinging...");
+    Timer::after(embassy_time::Duration::from_millis(1000)).await; // longer wait
+
+    // Ping to confirm alive
     dev.ping().await.unwrap();
-    info!("  ping success");
+    info!("Ping OK");
 
+    // Enable oscillator first
+    dev.set_oscillator_enable(true).await.unwrap();
+    info!("Oscillator enabled");
+    Timer::after(embassy_time::Duration::from_millis(2000)).await; // longer wait
+
+    // Enable radio
     dev.set_enable(true).await.unwrap();
-    Timer::after(embassy_time::Duration::from_millis(200)).await;
     info!("Radio enabled");
+    Timer::after(embassy_time::Duration::from_millis(1000)).await; // extra wait
 
+    // Read full registers and log raw
+    let registers = dev.read_all_registers().await.unwrap();
+    info!("Raw 32-byte read: {:02X?}", registers);
+
+    // Chip ID should be at buffer[14..16]
+    let chip_id_raw = u16::from_be_bytes([registers[14], registers[15]]);
+    info!("Raw ChipId u16: 0x{:04x}", chip_id_raw);
+
+    // Then get_chip_info
     let chip_info = dev.get_chip_info().await.unwrap();
-    info!("{:?}", chip_info);
+    info!("Chip info: {:?}", chip_info);
+
+    let device_info = dev.get_device_info().await.unwrap();
+    info!(
+        "Device info: pn:0x{:x}, mfgid:0x{:x}",
+        device_info.pn, device_info.mfgid
+    );
 
     loop {
         info!("Waiting...");

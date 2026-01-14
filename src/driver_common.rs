@@ -6,7 +6,7 @@ use embedded_hal::{
     digital::{OutputPin, StatefulOutputPin},
     i2c::SevenBitAddress,
 };
-use modular_bitfield::prelude::*;
+use modular_bitfield_msb::prelude::*;
 
 pub const SI470X_I2C_ADDRESS: SevenBitAddress = 0x10;
 
@@ -40,14 +40,12 @@ impl From<ReadRegIdx> for u8 {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct DeviceId {
     pub pn: B4,
     pub mfgid: B12,
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ChipId {
     pub rev: B6,
     pub dev: B4,
@@ -55,7 +53,6 @@ pub struct ChipId {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PowerCfg {
     pub dsmute: bool,
     pub dmute: bool,
@@ -75,33 +72,32 @@ pub struct PowerCfg {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Channel {
     pub tune: bool,
     #[skip]
-    unused: B5,
+    __: B5,
     pub chan: B10,
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SysConfig1 {
     pub rdsien: bool,
     pub stcien: bool,
     #[skip]
-    unused: bool,
+    __: bool,
     pub rds: bool,
     pub de: bool,
     pub agcd: bool,
     #[skip]
-    unused: B2,
+    __: B2,
     pub blndadj: B2,
     pub gpio3: B2,
     pub gpio2: B2,
     pub gpio1: B2,
 }
 
-#[derive(Specifier)]
+#[derive(BitfieldSpecifier)]
 #[bits = 2]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ChannelSpacing {
@@ -111,7 +107,7 @@ pub enum ChannelSpacing {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SysConfig2 {
     pub seekth: B8,
     pub band: B2,
@@ -121,7 +117,7 @@ pub struct SysConfig2 {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SysConfig3 {
     pub smuter: B2,
     pub smutea: B2,
@@ -133,7 +129,7 @@ pub struct SysConfig3 {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Test1 {
     pub xoscen: bool,
     pub ahizen: bool,
@@ -142,21 +138,21 @@ pub struct Test1 {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Test2 {
     #[skip]
     unused: B16,
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct BootConfig {
     #[skip]
     unused: B16,
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct StatusRssi {
     pub rdsrr: bool,
     pub stc: bool,
@@ -169,7 +165,7 @@ pub struct StatusRssi {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct ReadChan {
     pub blerb: B2,
     pub blerc: B2,
@@ -178,25 +174,25 @@ pub struct ReadChan {
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct RdsA {
     pub rdsa: B16,
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct RdsB {
     pub rdsb: B16,
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct RdsC {
     pub rdsc: B16,
 }
 
 #[bitfield(bits = 16)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct RdsD {
     pub rdsd: B16,
 }
@@ -206,6 +202,12 @@ pub struct ChipInfo {
     pub revision: u8,
     pub device: u8,
     pub firmware: u8,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct DeviceInfo {
+    pub pn: u8,
+    pub mfgid: u16,
 }
 
 #[derive(Debug)]

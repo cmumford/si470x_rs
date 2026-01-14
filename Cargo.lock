@@ -986,24 +986,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 
 [[package]]
-name = "modular-bitfield"
-version = "0.13.1"
+name = "modular-bitfield-msb"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2956e537fc68236d2aa048f55704f231cc93f1c4de42fe1ecb5bd7938061fc4a"
+checksum = "a4f8c4275b0126bb0086e739ee3210114e8f97965779de613d0e8c6bcf06ca5d"
 dependencies = [
- "modular-bitfield-impl",
+ "modular-bitfield-msb-impl",
  "static_assertions",
 ]
 
 [[package]]
-name = "modular-bitfield-impl"
-version = "0.13.1"
+name = "modular-bitfield-msb-impl"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59b43b4fd69e3437618106f7754f34021b831a514f9e1a98ae863cabcd8d8dad"
+checksum = "c6239283b0bafd6b3a55a6a02bfce9a3e7fc6ebeffa6f75fe91a104267fcebbd"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.114",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -1287,7 +1287,7 @@ dependencies = [
  "esp-println",
  "esp-rtos",
  "log",
- "modular-bitfield",
+ "modular-bitfield-msb",
 ]
 
 [[package]]
