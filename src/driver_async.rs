@@ -128,7 +128,7 @@ where
 
     pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
         let registers: [u8; 32] = self.read_all_registers().await.unwrap();
-        let idx = 2 * ReadRegIdx::DeviceId as usize;
+        let idx = 2 * ReadRegIdx::ChipId as usize;
         let chip_id = ChipId::from_bytes([registers[idx], registers[idx + 1]]);
         Ok(ChipInfo {
             revision: chip_id.rev(),
