@@ -2,7 +2,6 @@
 use embedded_hal_async::i2c::I2c as AsyncI2c;
 
 use super::driver_common::*;
-use log::info;
 
 pub struct Si470x<I2C> {
     i2c: I2C,
@@ -140,14 +139,7 @@ where
     pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
         let registers: [u8; 32] = self.read_all_registers().await.unwrap();
         let idx = 2 * ReadRegIdx::DeviceId as usize;
-        let data = [registers[idx], registers[idx + 1]];
-        info!("DEVICEID data: {:02X?}", data);
         let device_id = DeviceId::from_bytes([registers[idx], registers[idx + 1]]);
-        info!(
-            "Device ID: chip:{} dev:{}",
-            device_id.pn(),
-            device_id.mfgid()
-        );
         Ok(DeviceInfo {
             pn: device_id.pn(),
             mfgid: device_id.mfgid(),

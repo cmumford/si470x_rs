@@ -66,12 +66,37 @@ fn main() -> ! {
     let mut dev = Si470x::new(i2c);
     dev.set_enable(true).unwrap();
 
-    info!("Pinging...");
+    // Ping to confirm alive
     dev.ping().unwrap();
-    info!("  ping success");
+    info!("Ping OK");
 
+    // Enable oscillator first
+    dev.set_oscillator_enable(true).unwrap();
+    info!("Oscillator enabled");
+    delay.delay_millis(2000);
+
+    // Enable radio
+    dev.set_enable(true).unwrap();
+    info!("Radio enabled");
+    delay.delay_millis(1000);
+
+    // Read full registers and log raw
+    let registers = dev.read_all_registers().unwrap();
+    info!("Raw 32-byte read: {:02X?}", registers);
+
+    // Chip ID should be at buffer[14..16]
+    let chip_id_raw = u16::from_be_bytes([registers[14], registers[15]]);
+    info!("Raw ChipId u16: 0x{:04x}", chip_id_raw);
+
+    // Then get_chip_info
     let chip_info = dev.get_chip_info().unwrap();
-    info!("{:?}", chip_info);
+    info!("Chip info: {:?}", chip_info);
+
+    let device_info = dev.get_device_info().unwrap();
+    info!(
+        "Device info: pn:0x{:x}, mfgid:0x{:x}",
+        device_info.pn, device_info.mfgid
+    );
 
     loop {
         info!("Waiting...");

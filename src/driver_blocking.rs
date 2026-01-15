@@ -32,9 +32,8 @@ where
         const START_IDX: usize = 2 * ReadRegIdx::PowerCfg as usize;
         const END_IDX: usize = 2 * ReadRegIdx::Test1 as usize;
 
-        let write_slice = &registers[START_IDX..END_IDX + 2];
         self.i2c
-            .write(SI470X_I2C_ADDRESS, write_slice)
+            .write(SI470X_I2C_ADDRESS, &registers[START_IDX..END_IDX + 2])
             .map_err(Si470xError::I2c)?;
 
         Ok(())
@@ -111,6 +110,16 @@ where
             revision: chip_id.rev(),
             device: chip_id.dev(),
             firmware: chip_id.firmware(),
+        })
+    }
+
+    pub fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
+        let registers: [u8; 32] = self.read_all_registers().unwrap();
+        let idx = 2 * ReadRegIdx::DeviceId as usize;
+        let device_id = DeviceId::from_bytes([registers[idx], registers[idx + 1]]);
+        Ok(DeviceInfo {
+            pn: device_id.pn(),
+            mfgid: device_id.mfgid(),
         })
     }
 
