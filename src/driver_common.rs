@@ -213,7 +213,8 @@ pub struct DeviceInfo {
 #[derive(Debug)]
 pub enum Si470xError<E> {
     I2c(E),
-    InvalidResponse,
+    TuneInProgress,
+    OutOfRange,
     // ... add more if needed
 }
 
@@ -221,7 +222,8 @@ impl<E: fmt::Debug> fmt::Display for Si470xError<E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::I2c(e) => write!(f, "I²C error: {:?}", e),
-            Self::InvalidResponse => write!(f, "Invalid response from device"),
+            Self::TuneInProgress => write!(f, "Tune in progress"),
+            Self::OutOfRange => write!(f, "Out of range"),
         }
     }
 }

@@ -111,6 +111,20 @@ where
         self.write_all_registers(registers).await
     }
 
+    pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<I2C::Error>> {
+        let mut registers: [u8; 32] = self.read_all_registers().await.unwrap();
+        let idx = 2 * ReadRegIdx::Channel as usize;
+        let mut reg = Channel::from_bytes([registers[idx], registers[idx + 1]]);
+
+        if reg.tune() {
+            return Err(Si470xError::TuneInProgress);
+        }
+        reg.set_chan(channel);
+
+        registers[idx..idx + 2].copy_from_slice(&reg.into_bytes());
+        self.write_all_registers(registers).await
+    }
+
     pub async fn set_oscillator_enable(
         &mut self,
         enable: bool,
