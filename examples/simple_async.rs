@@ -85,29 +85,17 @@ async fn main(_spawner: Spawner) -> ! {
 
     Timer::after(embassy_time::Duration::from_millis(1000)).await; // longer wait
 
-    // Ping to confirm alive
     dev.ping().await.unwrap();
     info!("Ping OK");
 
-    // Enable oscillator first
     dev.set_oscillator_enable(true).await.unwrap();
     info!("Oscillator enabled");
     Timer::after(embassy_time::Duration::from_millis(2000)).await; // longer wait
 
-    // Enable radio
     dev.set_enable(true).await.unwrap();
     info!("Radio enabled");
     Timer::after(embassy_time::Duration::from_millis(1000)).await; // extra wait
 
-    // Read full registers and log raw
-    let registers = dev.read_all_registers().await.unwrap();
-    info!("Raw 32-byte read: {:02X?}", registers);
-
-    // Chip ID should be at buffer[14..16]
-    let chip_id_raw = u16::from_be_bytes([registers[14], registers[15]]);
-    info!("Raw ChipId u16: 0x{:04x}", chip_id_raw);
-
-    // Then get_chip_info
     let chip_info = dev.get_chip_info().await.unwrap();
     info!("Chip info: {:?}", chip_info);
 

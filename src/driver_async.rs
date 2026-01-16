@@ -16,7 +16,7 @@ where
         Self { i2c }
     }
 
-    pub async fn read_all_registers(&mut self) -> Result<[u8; 32], Si470xError<I2C::Error>> {
+    async fn read_all_registers(&mut self) -> Result<[u8; 32], Si470xError<I2C::Error>> {
         let mut registers = [0u8; 32];
 
         // "For read operations, the device acknowledge is followed by an eight
@@ -38,7 +38,7 @@ where
 
     // Write all "writable" registers (02h through 07h).
     // `registers` is in the read order defined by ReadRegIdx.
-    pub async fn write_all_registers(
+    async fn write_all_registers(
         &mut self,
         registers: [u8; 32],
     ) -> Result<(), Si470xError<I2C::Error>> {

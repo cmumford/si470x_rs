@@ -13,7 +13,7 @@ where
         Self { i2c }
     }
 
-    pub fn read_all_registers(&mut self) -> Result<[u8; 32], Si470xError<I2C::Error>> {
+    fn read_all_registers(&mut self) -> Result<[u8; 32], Si470xError<I2C::Error>> {
         let mut registers = [0u8; 32];
 
         // See command above ReadRegIdx for order of data.
@@ -25,10 +25,7 @@ where
 
     // Write all "writable" registers (02h through 07h).
     // `registers` is in the read order defined by ReadRegIdx.
-    pub fn write_all_registers(
-        &mut self,
-        registers: [u8; 32],
-    ) -> Result<(), Si470xError<I2C::Error>> {
+    fn write_all_registers(&mut self, registers: [u8; 32]) -> Result<(), Si470xError<I2C::Error>> {
         const START_IDX: usize = 2 * ReadRegIdx::PowerCfg as usize;
         const END_IDX: usize = 2 * ReadRegIdx::Test1 as usize;
 
