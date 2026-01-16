@@ -1,12 +1,11 @@
 #![allow(dead_code)]
 
-use maybe_async::maybe_async;
-
 use core::fmt;
 use embedded_hal::{
     digital::{OutputPin, StatefulOutputPin},
     i2c::SevenBitAddress,
 };
+use maybe_async::maybe_async;
 
 #[cfg(feature = "async")]
 use embedded_hal_async::{delay::DelayNs, i2c::I2c};
