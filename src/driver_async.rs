@@ -118,6 +118,16 @@ where
         .await
     }
 
+    // Set the RSSI seek threshold.
+    pub async fn set_rssi_threshold(&mut self, seekth: u8) -> Result<(), Si470xError<I2C::Error>> {
+        self.modify_register(ReadRegIdx::SysConfig2, |bytes| {
+            let mut reg = SysConfig2::from_bytes(bytes);
+            reg.set_seekth(seekth);
+            Ok(reg.into_bytes())
+        })
+        .await
+    }
+
     pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<I2C::Error>> {
         self.modify_register(ReadRegIdx::Channel, |bytes| {
             let mut reg = Channel::from_bytes(bytes);
