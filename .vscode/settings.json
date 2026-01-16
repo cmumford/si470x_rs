@@ -3,6 +3,7 @@
   "rust-analyzer.cargo.target": "riscv32imac-unknown-none-elf",
   "rust-analyzer.cargo.features": [
     "esp32c6",
+    "async"
   ],
   "rust-analyzer.server.extraEnv": {
     "RUSTUP_TOOLCHAIN": "stable"

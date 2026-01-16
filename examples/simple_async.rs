@@ -7,17 +7,16 @@
 )]
 
 use embassy_executor::Spawner;
-use embassy_time::Timer;
+use embassy_time::{Delay, Timer};
 use esp_hal::{
     clock::CpuClock,
-    delay::Delay,
     gpio::{Level, Output, OutputConfig},
     i2c::master::I2c,
     time::Rate,
     timer::timg::TimerGroup,
 };
 use log::{LevelFilter, info};
-use si470x::{Si470x, driver_common::reset_radio_for_i2c};
+use si470x::{Si470x, reset_radio_for_i2c};
 
 extern crate alloc;
 
@@ -55,8 +54,10 @@ async fn main(_spawner: Spawner) -> ! {
     let mut rst_pin = Output::new(rst_gpio, Level::High, OutputConfig::default());
     let mut sda_pin = Output::new(sda_gpio.reborrow(), Level::High, OutputConfig::default());
     let mut sen_pin = Output::new(sen_gpio, Level::High, OutputConfig::default());
-    let mut delay = Delay::new();
-    reset_radio_for_i2c(&mut rst_pin, &mut sda_pin, Some(&mut sen_pin), &mut delay).unwrap();
+    let mut delay = Delay {};
+    reset_radio_for_i2c(&mut rst_pin, &mut sda_pin, Some(&mut sen_pin), &mut delay)
+        .await
+        .unwrap();
 
     esp_alloc::heap_allocator!(size: 32 * 1024);
 
