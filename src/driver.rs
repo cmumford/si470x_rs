@@ -44,12 +44,6 @@ pub enum ReadRegIdx {
     BootConfig = 0x0F,
 }
 
-impl From<ReadRegIdx> for u8 {
-    fn from(reg: ReadRegIdx) -> u8 {
-        reg as u8
-    }
-}
-
 #[bitfield(bits = 16)]
 pub struct DeviceId {
     pub pn: B4,
