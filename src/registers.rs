@@ -44,16 +44,16 @@ pub struct PowerCfg {
     pub dmute: bool,
     pub mono: bool,
     #[skip]
-    unused: bool,
+    __: bool,
     pub rdsm: bool,
     pub skmode: bool,
     pub seekup: bool,
     pub seek: bool,
     #[skip]
-    unused: bool,
+    __: bool,
     pub disable: bool,
     #[skip]
-    unused: B5,
+    __: B5,
     pub enable: bool,
 }
 
@@ -108,7 +108,7 @@ pub struct SysConfig3 {
     pub smuter: B2,
     pub smutea: B2,
     #[skip]
-    unused: B3,
+    __: B3,
     pub volext: bool,
     pub sksnr: B4,
     pub skcnt: B4,
@@ -120,21 +120,21 @@ pub struct Test1 {
     pub xoscen: bool,
     pub ahizen: bool,
     #[skip]
-    unused: B14,
+    __: B14,
 }
 
 #[bitfield(bits = 16)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Test2 {
     #[skip]
-    unused: B16,
+    __: B16,
 }
 
 #[bitfield(bits = 16)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct BootConfig {
     #[skip]
-    unused: B16,
+    __: B16,
 }
 
 #[bitfield(bits = 16)]
