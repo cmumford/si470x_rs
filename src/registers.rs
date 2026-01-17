@@ -82,6 +82,7 @@ pub struct PowerCfg {
 }
 
 #[bitfield(bits = 16)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct Channel {
     pub tune: bool,
     #[skip]
