@@ -242,6 +242,7 @@ where
             registers.set_power_cfg(preg);
         }
         creg.set_chan(channel);
+        creg.set_tune(true);
         registers.set_channel(creg);
         self.write_registers(&registers).await
     }
