@@ -10,13 +10,25 @@ use maybe_async::maybe_async;
 #[cfg(feature = "async")]
 use embedded_hal_async::{delay::DelayNs, i2c::I2c};
 
-#[cfg(not(feature = "async"))]
+#[cfg(feature = "sync")]
 use embedded_hal::{delay::DelayNs, i2c::I2c};
 
 // At the top level of lib.rs or a common module
 #[cfg(all(feature = "sync", feature = "async"))]
-compile_error!("Cannot enable both 'sync' and 'async' features at the same time");
+compile_error!(
+    "Features `sync` and `async` are mutually exclusive.\n\
+     Choose exactly one:\n  \
+     - `--features sync`   for blocking API\n  \
+     - `--features async`  for async/await API"
+);
 
+// Prevent neither being enabled (require exactly one)
+#[cfg(all(not(feature = "sync"), not(feature = "async")))]
+compile_error!(
+    "You must enable exactly one of the following features:\n  \
+     - `sync`   → blocking / synchronous API\n  \
+     - `async`  → async / await API (requires embedded-hal-async)"
+);
 use crate::registers::*;
 
 pub const SI470X_I2C_ADDRESS: SevenBitAddress = 0x10;
