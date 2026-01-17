@@ -89,6 +89,39 @@ pub struct Channel {
     pub chan: B10,
 }
 
+#[derive(BitfieldSpecifier)]
+#[bits = 2]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Gpio3 {
+    HighImpedance = 0b00, // High impedance (default).
+    MonoStereo = 0b01,    // Mono/Stereo indicator (ST).
+    Low = 0b10,
+    High = 0b11,
+}
+
+#[derive(BitfieldSpecifier)]
+#[bits = 2]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Gpio2 {
+    HighImpedance = 0b00,   // High impedance (default).
+    StcRdsInterrupt = 0b01, // STC/RDS interrupt.
+    Low = 0b10,
+    High = 0b11,
+}
+
+// Setting STCIEN = 1 will generate a 5 ms low pulse on GPIO2 when the
+// STC 0Ah[14] bit is set. Setting RDSIEN = 1 will generate a 5 ms low
+// pulse on GPIO2 when the RDSR 0Ah[15] bit is set.
+#[derive(BitfieldSpecifier)]
+#[bits = 2]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Gpio1 {
+    HighImpedance = 0b00, // High impedance (default).
+    __ = 0b01,            // Reserved.
+    Low = 0b10,
+    High = 0b11,
+}
+
 #[bitfield(bits = 16)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SysConfig1 {
@@ -102,9 +135,9 @@ pub struct SysConfig1 {
     #[skip]
     __: B2,
     pub blndadj: B2,
-    pub gpio3: B2,
-    pub gpio2: B2,
-    pub gpio1: B2,
+    pub gpio3: Gpio3,
+    pub gpio2: Gpio2,
+    pub gpio1: Gpio1,
 }
 
 #[derive(BitfieldSpecifier)]
