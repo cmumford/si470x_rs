@@ -177,10 +177,43 @@ where
         .await
     }
 
+    pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
+        let registers: [u8; 32] = self.read_all_registers().await?;
+        let idx = 2 * ReadRegIdx::DeviceId as usize;
+        let device_id = DeviceId::from_bytes([registers[idx], registers[idx + 1]]);
+        Ok(DeviceInfo {
+            pn: device_id.pn(),
+            mfgid: device_id.mfgid(),
+        })
+    }
+
+    pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
+        let registers: [u8; 32] = self.read_all_registers().await?;
+        let idx = 2 * ReadRegIdx::ChipId as usize;
+        let chip_id = ChipId::from_bytes([registers[idx], registers[idx + 1]]);
+        Ok(ChipInfo {
+            revision: chip_id.rev(),
+            device: chip_id.dev(),
+            firmware: chip_id.firmware(),
+        })
+    }
+
     pub async fn set_mute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
         self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
             let mut reg = PowerCfg::from_bytes(bytes);
             reg.set_dmute(muted);
+            Ok(reg.into_bytes())
+        })
+        .await
+    }
+
+    pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<I2C::Error>> {
+        self.modify_register(ReadRegIdx::Channel, |bytes| {
+            let mut reg = Channel::from_bytes(bytes);
+            if reg.tune() {
+                return Err(Si470xError::TuneInProgress);
+            }
+            reg.set_chan(channel);
             Ok(reg.into_bytes())
         })
         .await
@@ -218,18 +251,6 @@ where
         .await
     }
 
-    pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::Channel, |bytes| {
-            let mut reg = Channel::from_bytes(bytes);
-            if reg.tune() {
-                return Err(Si470xError::TuneInProgress);
-            }
-            reg.set_chan(channel);
-            Ok(reg.into_bytes())
-        })
-        .await
-    }
-
     pub async fn set_oscillator_enable(
         &mut self,
         enable: bool,
@@ -240,27 +261,6 @@ where
             Ok(reg.into_bytes())
         })
         .await
-    }
-
-    pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
-        let registers: [u8; 32] = self.read_all_registers().await?;
-        let idx = 2 * ReadRegIdx::ChipId as usize;
-        let chip_id = ChipId::from_bytes([registers[idx], registers[idx + 1]]);
-        Ok(ChipInfo {
-            revision: chip_id.rev(),
-            device: chip_id.dev(),
-            firmware: chip_id.firmware(),
-        })
-    }
-
-    pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
-        let registers: [u8; 32] = self.read_all_registers().await?;
-        let idx = 2 * ReadRegIdx::DeviceId as usize;
-        let device_id = DeviceId::from_bytes([registers[idx], registers[idx + 1]]);
-        Ok(DeviceInfo {
-            pn: device_id.pn(),
-            mfgid: device_id.mfgid(),
-        })
     }
 
     pub async fn ping(&mut self) -> Result<(), Si470xError<I2C::Error>> {
