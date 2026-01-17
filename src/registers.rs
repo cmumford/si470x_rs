@@ -219,3 +219,140 @@ pub struct DeviceInfo {
     pub pn: u8,
     pub mfgid: u16,
 }
+
+pub struct Registers {
+    // Register bytes are ordered IAW ReadRegIdx.
+    registers: [u8; 32],
+}
+
+impl Registers {
+    #[inline]
+    pub const fn new() -> Self {
+        Self {
+            registers: [0u8; 32],
+        }
+    }
+
+    #[inline]
+    pub fn device_id(&self) -> DeviceId {
+        DeviceId::from_bytes(self.get_raw(ReadRegIdx::DeviceId))
+    }
+
+    #[inline]
+    pub fn chip_id(&self) -> ChipId {
+        ChipId::from_bytes(self.get_raw(ReadRegIdx::ChipId))
+    }
+
+    #[inline]
+    pub fn power_cfg(&self) -> PowerCfg {
+        PowerCfg::from_bytes(self.get_raw(ReadRegIdx::PowerCfg))
+    }
+
+    #[inline]
+    pub fn channel(&self) -> Channel {
+        Channel::from_bytes(self.get_raw(ReadRegIdx::Channel))
+    }
+
+    #[inline]
+    pub fn sys_config1(&self) -> SysConfig1 {
+        SysConfig1::from_bytes(self.get_raw(ReadRegIdx::SysConfig1))
+    }
+
+    #[inline]
+    pub fn sys_config2(&self) -> SysConfig2 {
+        SysConfig2::from_bytes(self.get_raw(ReadRegIdx::SysConfig2))
+    }
+
+    #[inline]
+    pub fn sys_config3(&self) -> SysConfig3 {
+        SysConfig3::from_bytes(self.get_raw(ReadRegIdx::SysConfig3))
+    }
+
+    #[inline]
+    pub fn test1(&self) -> Test1 {
+        Test1::from_bytes(self.get_raw(ReadRegIdx::Test1))
+    }
+
+    #[inline]
+    pub fn status_rssi(&self) -> StatusRssi {
+        StatusRssi::from_bytes(self.get_raw(ReadRegIdx::StatusRssi))
+    }
+
+    #[inline]
+    pub fn read_chan(&self) -> ReadChan {
+        ReadChan::from_bytes(self.get_raw(ReadRegIdx::ReadChan))
+    }
+
+    #[inline]
+    pub fn rdsa_a(&self) -> RdsA {
+        RdsA::from_bytes(self.get_raw(ReadRegIdx::RdsA))
+    }
+
+    #[inline]
+    pub fn rdsa_b(&self) -> RdsB {
+        RdsB::from_bytes(self.get_raw(ReadRegIdx::RdsB))
+    }
+
+    #[inline]
+    pub fn rdsa_c(&self) -> RdsC {
+        RdsC::from_bytes(self.get_raw(ReadRegIdx::RdsC))
+    }
+
+    #[inline]
+    pub fn rdsa_d(&self) -> RdsD {
+        RdsD::from_bytes(self.get_raw(ReadRegIdx::RdsD))
+    }
+
+    #[inline]
+    pub fn set_power_cfg(&mut self, reg: PowerCfg) {
+        self.set_raw(ReadRegIdx::PowerCfg, reg.into_bytes());
+    }
+
+    #[inline]
+    pub fn set_channel(&mut self, reg: Channel) {
+        self.set_raw(ReadRegIdx::Channel, reg.into_bytes());
+    }
+
+    #[inline]
+    pub fn set_sys_config1(&mut self, reg: SysConfig1) {
+        self.set_raw(ReadRegIdx::SysConfig1, reg.into_bytes());
+    }
+
+    #[inline]
+    pub fn set_sys_config2(&mut self, reg: SysConfig2) {
+        self.set_raw(ReadRegIdx::SysConfig2, reg.into_bytes());
+    }
+
+    #[inline]
+    pub fn set_sys_config3(&mut self, reg: SysConfig3) {
+        self.set_raw(ReadRegIdx::SysConfig3, reg.into_bytes());
+    }
+
+    #[inline]
+    pub fn set_test1(&mut self, reg: Test1) {
+        self.set_raw(ReadRegIdx::Test1, reg.into_bytes());
+    }
+
+    #[inline]
+    pub fn as_bytes(&self) -> &[u8; 32] {
+        &self.registers
+    }
+
+    #[inline]
+    pub fn as_bytes_mut(&mut self) -> &mut [u8; 32] {
+        &mut self.registers
+    }
+
+    #[inline]
+    fn get_raw(&self, idx: ReadRegIdx) -> [u8; 2] {
+        let i = idx as usize * 2;
+        [self.registers[i], self.registers[i + 1]]
+    }
+
+    #[inline]
+    fn set_raw(&mut self, idx: ReadRegIdx, bytes: [u8; 2]) {
+        let i = idx as usize * 2;
+        self.registers[i] = bytes[0];
+        self.registers[i + 1] = bytes[1];
+    }
+}

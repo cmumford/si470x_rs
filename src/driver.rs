@@ -106,8 +106,8 @@ where
         Self { i2c }
     }
 
-    async fn read_all_registers(&mut self) -> Result<[u8; 32], Si470xError<I2C::Error>> {
-        let mut registers = [0u8; 32];
+    async fn read_registers(&mut self) -> Result<Registers, Si470xError<I2C::Error>> {
+        let mut registers = Registers::new();
 
         // "For read operations, the device acknowledge is followed by an eight
         // bit data word shifted out on falling SCLK edges. An internal address
@@ -120,17 +120,15 @@ where
 
         // See command above ReadRegIdx for order of data.
         self.i2c
-            .read(SI470X_I2C_ADDRESS, &mut registers)
+            .read(SI470X_I2C_ADDRESS, registers.as_bytes_mut())
             .await
             .map_err(Si470xError::I2c)?;
         Ok(registers)
     }
 
-    // Write all "writable" registers (02h through 07h).
-    // `registers` is in the read order defined by ReadRegIdx.
-    async fn write_all_registers(
+    async fn write_registers(
         &mut self,
-        registers: [u8; 32],
+        registers: &Registers,
     ) -> Result<(), Si470xError<I2C::Error>> {
         // "An internal address counter automatically increments to allow
         // continuous data byte writes, starting with the upper byte of register
@@ -142,98 +140,79 @@ where
         const END_IDX: usize = 2 * ReadRegIdx::Test1 as usize;
 
         self.i2c
-            .write(SI470X_I2C_ADDRESS, &registers[START_IDX..END_IDX + 2])
+            .write(
+                SI470X_I2C_ADDRESS,
+                &registers.as_bytes()[START_IDX..END_IDX + 2],
+            )
             .await
             .map_err(Si470xError::I2c)?;
 
         Ok(())
     }
 
-    async fn modify_register<F>(
-        &mut self,
-        reg: ReadRegIdx,
-        f: F,
-    ) -> Result<(), Si470xError<I2C::Error>>
-    where
-        F: FnOnce([u8; 2]) -> Result<[u8; 2], Si470xError<I2C::Error>>,
-    {
-        let mut registers = self.read_all_registers().await?;
-        let idx = 2 * reg as usize;
-        let new_bytes = f([registers[idx], registers[idx + 1]])?;
-        registers[idx..idx + 2].copy_from_slice(&new_bytes);
-        self.write_all_registers(registers).await
+    pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
+        let registers = self.read_registers().await?;
+        let reg = registers.device_id();
+        Ok(DeviceInfo {
+            pn: reg.pn(),
+            mfgid: reg.mfgid(),
+        })
+    }
+
+    pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
+        let registers = self.read_registers().await?;
+        let reg = registers.chip_id();
+        Ok(ChipInfo {
+            revision: reg.rev(),
+            device: reg.dev(),
+            firmware: reg.firmware(),
+        })
     }
 
     // Enable or disable the device. Before disabling RDS should be disabled
     // according to the datasheet.
     pub async fn set_enable(&mut self, enable: bool) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
-            let mut reg = PowerCfg::from_bytes(bytes);
-            // Note: Datasheet says "The ENABLE bit should never be written to a 0".
-            reg.set_enable(true);
-            reg.set_disable(!enable);
-            Ok(reg.into_bytes())
-        })
-        .await
-    }
-
-    pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
-        let registers: [u8; 32] = self.read_all_registers().await?;
-        let idx = 2 * ReadRegIdx::DeviceId as usize;
-        let device_id = DeviceId::from_bytes([registers[idx], registers[idx + 1]]);
-        Ok(DeviceInfo {
-            pn: device_id.pn(),
-            mfgid: device_id.mfgid(),
-        })
-    }
-
-    pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
-        let registers: [u8; 32] = self.read_all_registers().await?;
-        let idx = 2 * ReadRegIdx::ChipId as usize;
-        let chip_id = ChipId::from_bytes([registers[idx], registers[idx + 1]]);
-        Ok(ChipInfo {
-            revision: chip_id.rev(),
-            device: chip_id.dev(),
-            firmware: chip_id.firmware(),
-        })
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.power_cfg();
+        // Note: Datasheet says "The ENABLE bit should never be written to a 0".
+        reg.set_enable(true);
+        reg.set_disable(!enable);
+        registers.set_power_cfg(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_softmute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
-            let mut reg = PowerCfg::from_bytes(bytes);
-            let mute_disabled = !muted;
-            reg.set_dsmute(mute_disabled);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.power_cfg();
+        let mute_disabled = !muted;
+        reg.set_dsmute(mute_disabled);
+        registers.set_power_cfg(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_mute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
-            let mut reg = PowerCfg::from_bytes(bytes);
-            let mute_disabled = !muted;
-            reg.set_dmute(mute_disabled);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.power_cfg();
+        let mute_disabled = !muted;
+        reg.set_dmute(mute_disabled);
+        registers.set_power_cfg(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_mono(&mut self, mono: bool) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
-            let mut reg = PowerCfg::from_bytes(bytes);
-            reg.set_mono(mono);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.power_cfg();
+        reg.set_mono(mono);
+        registers.set_power_cfg(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_rds_verbose(&mut self, verbose: bool) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
-            let mut reg = PowerCfg::from_bytes(bytes);
-            reg.set_rdsm(verbose);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.power_cfg();
+        reg.set_rdsm(verbose);
+        registers.set_power_cfg(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_seek(
@@ -242,70 +221,69 @@ where
         direction: SeekDirection,
         state: SeekState,
     ) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
-            let mut reg = PowerCfg::from_bytes(bytes);
-            reg.set_skmode(mode);
-            reg.set_seekup(direction);
-            reg.set_seek(state);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.power_cfg();
+        reg.set_skmode(mode);
+        reg.set_seekup(direction);
+        reg.set_seek(state);
+        registers.set_power_cfg(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::Channel, |bytes| {
-            let mut reg = Channel::from_bytes(bytes);
-            if reg.tune() {
-                return Err(Si470xError::TuneInProgress);
-            }
-            reg.set_chan(channel);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut creg = registers.channel();
+        if creg.tune() {
+            return Err(Si470xError::TuneInProgress);
+        }
+        let mut preg = registers.power_cfg();
+        if preg.seek() == SeekState::Enable {
+            preg.set_seek(SeekState::Disable);
+            registers.set_power_cfg(preg);
+        }
+        creg.set_chan(channel);
+        registers.set_channel(creg);
+        self.write_registers(&registers).await
     }
 
     // Set the radio volume. Volume is 4-bit unsigned.
     pub async fn set_volume(&mut self, volume: u8) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::SysConfig2, |bytes| {
-            let mut reg = SysConfig2::from_bytes(bytes);
-            reg.set_volume(volume);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.sys_config2();
+        reg.set_volume(volume);
+        registers.set_sys_config2(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_channel_spacing(
         &mut self,
         channel_spacing: ChannelSpacing,
     ) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::SysConfig2, |bytes| {
-            let mut reg = SysConfig2::from_bytes(bytes);
-            reg.set_space(channel_spacing);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.sys_config2();
+        reg.set_space(channel_spacing);
+        registers.set_sys_config2(reg);
+        self.write_registers(&registers).await
     }
 
     // Set the RSSI seek threshold.
     pub async fn set_rssi_threshold(&mut self, seekth: u8) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::SysConfig2, |bytes| {
-            let mut reg = SysConfig2::from_bytes(bytes);
-            reg.set_seekth(seekth);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.sys_config2();
+        reg.set_seekth(seekth);
+        registers.set_sys_config2(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn set_oscillator_enable(
         &mut self,
         enable: bool,
     ) -> Result<(), Si470xError<I2C::Error>> {
-        self.modify_register(ReadRegIdx::Test1, |bytes| {
-            let mut reg = Test1::from_bytes(bytes);
-            reg.set_xoscen(enable);
-            Ok(reg.into_bytes())
-        })
-        .await
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.test1();
+        reg.set_xoscen(enable);
+        registers.set_test1(reg);
+        self.write_registers(&registers).await
     }
 
     pub async fn ping(&mut self) -> Result<(), Si470xError<I2C::Error>> {
