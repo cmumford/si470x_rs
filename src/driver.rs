@@ -198,10 +198,55 @@ where
         })
     }
 
+    pub async fn set_softmute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
+        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
+            let mut reg = PowerCfg::from_bytes(bytes);
+            let mute_disabled = !muted;
+            reg.set_dsmute(mute_disabled);
+            Ok(reg.into_bytes())
+        })
+        .await
+    }
+
     pub async fn set_mute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
         self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
             let mut reg = PowerCfg::from_bytes(bytes);
-            reg.set_dmute(muted);
+            let mute_disabled = !muted;
+            reg.set_dmute(mute_disabled);
+            Ok(reg.into_bytes())
+        })
+        .await
+    }
+
+    pub async fn set_mono(&mut self, mono: bool) -> Result<(), Si470xError<I2C::Error>> {
+        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
+            let mut reg = PowerCfg::from_bytes(bytes);
+            reg.set_mono(mono);
+            Ok(reg.into_bytes())
+        })
+        .await
+    }
+
+    pub async fn set_rds_verbose(&mut self, verbose: bool) -> Result<(), Si470xError<I2C::Error>> {
+        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
+            let mut reg = PowerCfg::from_bytes(bytes);
+            reg.set_rdsm(verbose);
+            Ok(reg.into_bytes())
+        })
+        .await
+    }
+
+    pub async fn set_seek(
+        &mut self,
+        mode: SeekMode,
+        direction: SeekDirection,
+        state: SeekState,
+    ) -> Result<(), Si470xError<I2C::Error>> {
+        self.modify_register(ReadRegIdx::PowerCfg, |bytes| {
+            let mut reg = PowerCfg::from_bytes(bytes);
+            reg.set_skmode(mode);
+            reg.set_seekup(direction);
+            reg.set_seek(state);
             Ok(reg.into_bytes())
         })
         .await

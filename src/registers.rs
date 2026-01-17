@@ -38,6 +38,30 @@ pub struct ChipId {
     pub firmware: B6,
 }
 
+#[derive(BitfieldSpecifier)]
+#[bits = 1]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum SeekMode {
+    Wrap = 0b00, // wrap at upper/lower limit (default)
+    Stop = 0b01, // stop at limit.
+}
+
+#[derive(BitfieldSpecifier)]
+#[bits = 1]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum SeekDirection {
+    Down = 0b00, // Seek down (default)
+    Up = 0b01,   // Seek up.
+}
+
+#[derive(BitfieldSpecifier)]
+#[bits = 1]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum SeekState {
+    Disable = 0b00, // Disable seek (default)
+    Enable = 0b01,  // Enable seek.
+}
+
 #[bitfield(bits = 16)]
 pub struct PowerCfg {
     pub dsmute: bool,
@@ -46,9 +70,9 @@ pub struct PowerCfg {
     #[skip]
     __: bool,
     pub rdsm: bool,
-    pub skmode: bool,
-    pub seekup: bool,
-    pub seek: bool,
+    pub skmode: SeekMode,
+    pub seekup: SeekDirection,
+    pub seek: SeekState,
     #[skip]
     __: bool,
     pub disable: bool,

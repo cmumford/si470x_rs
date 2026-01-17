@@ -15,7 +15,7 @@ use esp_hal::{
     time::{Duration, Instant, Rate},
 };
 use log::{LevelFilter, info};
-use si470x::{Si470x, reset_radio_for_i2c};
+use si470x::{SeekDirection, SeekMode, SeekState, Si470x, reset_radio_for_i2c};
 
 // This creates a default app-descriptor required by the esp-idf bootloader.
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
@@ -84,6 +84,9 @@ fn main() -> ! {
         "Device info: pn:0x{:x}, mfgid:0x{:x}",
         device_info.pn, device_info.mfgid
     );
+
+    dev.set_seek(SeekMode::Wrap, SeekDirection::Up, SeekState::Enable)
+        .unwrap();
 
     loop {
         info!("Waiting...");
