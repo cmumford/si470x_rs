@@ -230,6 +230,21 @@ where
         self.write_registers(&registers).await
     }
 
+    pub async fn clear_tune_seek_bits(&mut self) -> Result<(), Si470xError<I2C::Error>> {
+        let mut registers = self.read_registers().await?;
+        {
+            let mut reg = registers.channel();
+            reg.set_tune(false);
+            registers.set_channel(reg);
+        }
+        {
+            let mut reg = registers.power_cfg();
+            reg.set_seek(SeekState::Disable);
+            registers.set_power_cfg(reg);
+        }
+        self.write_registers(&registers).await
+    }
+
     pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<I2C::Error>> {
         let mut registers = self.read_registers().await?;
         let mut creg = registers.channel();
