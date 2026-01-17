@@ -93,19 +93,9 @@ pub struct Channel {
 #[derive(BitfieldSpecifier)]
 #[bits = 2]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Gpio3 {
+pub enum Gpio3Mode {
     HighImpedance = 0b00, // High impedance (default).
     MonoStereo = 0b01,    // Mono/Stereo indicator (ST).
-    Low = 0b10,
-    High = 0b11,
-}
-
-#[derive(BitfieldSpecifier)]
-#[bits = 2]
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Gpio2 {
-    HighImpedance = 0b00,   // High impedance (default).
-    StcRdsInterrupt = 0b01, // STC/RDS interrupt.
     Low = 0b10,
     High = 0b11,
 }
@@ -116,7 +106,17 @@ pub enum Gpio2 {
 #[derive(BitfieldSpecifier)]
 #[bits = 2]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Gpio1 {
+pub enum Gpio2Mode {
+    HighImpedance = 0b00,   // High impedance (default).
+    StcRdsInterrupt = 0b01, // STC/RDS interrupt.
+    Low = 0b10,
+    High = 0b11,
+}
+
+#[derive(BitfieldSpecifier)]
+#[bits = 2]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum Gpio1Mode {
     HighImpedance = 0b00, // High impedance (default).
     __ = 0b01,            // Reserved.
     Low = 0b10,
@@ -136,9 +136,9 @@ pub struct SysConfig1 {
     #[skip]
     __: B2,
     pub blndadj: B2,
-    pub gpio3: Gpio3,
-    pub gpio2: Gpio2,
-    pub gpio1: Gpio1,
+    pub gpio3: Gpio3Mode,
+    pub gpio2: Gpio2Mode,
+    pub gpio1: Gpio1Mode,
 }
 
 #[derive(BitfieldSpecifier)]

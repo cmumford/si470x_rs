@@ -278,6 +278,14 @@ where
         self.write_registers(&registers).await
     }
 
+    pub async fn set_gpio2_mode(&mut self, mode: Gpio2Mode) -> Result<(), Si470xError<I2C::Error>> {
+        let mut registers = self.read_registers().await?;
+        let mut reg = registers.sys_config1();
+        reg.set_gpio2(mode);
+        registers.set_sys_config1(reg);
+        self.write_registers(&registers).await
+    }
+
     // Set the radio volume. Volume is 4-bit unsigned.
     pub async fn set_volume(&mut self, volume: u8) -> Result<(), Si470xError<I2C::Error>> {
         let mut registers = self.read_registers().await?;
