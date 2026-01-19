@@ -266,10 +266,10 @@ pub struct Registers {
 
 impl Registers {
     #[inline]
-    pub const fn new() -> Self {
+    pub const fn new(last_valid_reg: ReadRegIdx) -> Self {
         Self {
             registers: [0u8; 32],
-            last_valid_reg: ReadRegIdx::BootConfig,
+            last_valid_reg: last_valid_reg,
         }
     }
 
@@ -387,13 +387,18 @@ impl Registers {
     }
 
     #[inline]
-    pub fn as_bytes(&self) -> &[u8; 32] {
+    pub fn as_bytes(&self) -> &[u8] {
         &self.registers
     }
 
     #[inline]
-    pub fn as_bytes_mut(&mut self) -> &mut [u8; 32] {
+    pub fn as_bytes_mut(&mut self) -> &mut [u8] {
         &mut self.registers
+    }
+
+    #[inline]
+    pub fn as_bytes_mut_n(&mut self, len: usize) -> &mut [u8] {
+        &mut self.registers[..len]
     }
 
     #[inline]
@@ -407,5 +412,10 @@ impl Registers {
         let i = idx as usize * 2;
         self.registers[i] = bytes[0];
         self.registers[i + 1] = bytes[1];
+    }
+
+    #[inline]
+    pub fn get_last_valid_reg(&self) -> ReadRegIdx {
+        self.last_valid_reg
     }
 }
