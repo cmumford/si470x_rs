@@ -133,7 +133,7 @@ where
         Ok(registers)
     }
 
-    pub async fn read_all_egisters(&mut self) -> Result<Registers, Si470xError<I2C::Error>> {
+    pub async fn read_all_registers(&mut self) -> Result<Registers, Si470xError<I2C::Error>> {
         self.read_registers(ReadRegIdx::BootConfig).await
     }
 
@@ -248,7 +248,7 @@ where
     }
 
     pub async fn clear_tune_seek_bits(&mut self) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_all_registers().await?;
         {
             let mut reg = registers.channel();
             reg.set_tune(false);
@@ -263,7 +263,7 @@ where
     }
 
     pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_all_registers().await?;
         let mut creg = registers.channel();
         if creg.tune() {
             return Err(Si470xError::TuneInProgress);
