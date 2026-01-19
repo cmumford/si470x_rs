@@ -257,6 +257,11 @@ pub struct DeviceInfo {
 pub struct Registers {
     // Register bytes are ordered IAW ReadRegIdx.
     registers: [u8; 32],
+    /// The last valid register in `registers`. This allows for partial reads
+    /// from the device as registers 00h..09h are either fixed or read-only.
+    /// Doing a partial read from 0Ah..0Fh is common to capture the dynamic
+    /// status registers.
+    last_valid_reg: ReadRegIdx,
 }
 
 impl Registers {
@@ -264,6 +269,7 @@ impl Registers {
     pub const fn new() -> Self {
         Self {
             registers: [0u8; 32],
+            last_valid_reg: ReadRegIdx::BootConfig,
         }
     }
 
@@ -274,66 +280,79 @@ impl Registers {
 
     #[inline]
     pub fn chip_id(&self) -> ChipId {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::ChipId as u8);
         ChipId::from_bytes(self.get_raw(ReadRegIdx::ChipId))
     }
 
     #[inline]
     pub fn power_cfg(&self) -> PowerCfg {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::PowerCfg as u8);
         PowerCfg::from_bytes(self.get_raw(ReadRegIdx::PowerCfg))
     }
 
     #[inline]
     pub fn channel(&self) -> Channel {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::Channel as u8);
         Channel::from_bytes(self.get_raw(ReadRegIdx::Channel))
     }
 
     #[inline]
     pub fn sys_config1(&self) -> SysConfig1 {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::SysConfig1 as u8);
         SysConfig1::from_bytes(self.get_raw(ReadRegIdx::SysConfig1))
     }
 
     #[inline]
     pub fn sys_config2(&self) -> SysConfig2 {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::SysConfig2 as u8);
         SysConfig2::from_bytes(self.get_raw(ReadRegIdx::SysConfig2))
     }
 
     #[inline]
     pub fn sys_config3(&self) -> SysConfig3 {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::SysConfig3 as u8);
         SysConfig3::from_bytes(self.get_raw(ReadRegIdx::SysConfig3))
     }
 
     #[inline]
     pub fn test1(&self) -> Test1 {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::Test1 as u8);
         Test1::from_bytes(self.get_raw(ReadRegIdx::Test1))
     }
 
     #[inline]
     pub fn status_rssi(&self) -> StatusRssi {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::StatusRssi as u8);
         StatusRssi::from_bytes(self.get_raw(ReadRegIdx::StatusRssi))
     }
 
     #[inline]
     pub fn read_chan(&self) -> ReadChan {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::ReadChan as u8);
         ReadChan::from_bytes(self.get_raw(ReadRegIdx::ReadChan))
     }
 
     #[inline]
     pub fn rdsa_a(&self) -> RdsA {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsA as u8);
         RdsA::from_bytes(self.get_raw(ReadRegIdx::RdsA))
     }
 
     #[inline]
     pub fn rdsa_b(&self) -> RdsB {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsB as u8);
         RdsB::from_bytes(self.get_raw(ReadRegIdx::RdsB))
     }
 
     #[inline]
     pub fn rdsa_c(&self) -> RdsC {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsC as u8);
         RdsC::from_bytes(self.get_raw(ReadRegIdx::RdsC))
     }
 
     #[inline]
     pub fn rdsa_d(&self) -> RdsD {
+        assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsD as u8);
         RdsD::from_bytes(self.get_raw(ReadRegIdx::RdsD))
     }
 
