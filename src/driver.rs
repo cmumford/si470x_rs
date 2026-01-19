@@ -106,7 +106,7 @@ where
         Self { i2c }
     }
 
-    async fn read_registers(
+    pub async fn read_registers(
         &mut self,
         up_to_and_including_reg: ReadRegIdx,
     ) -> Result<Registers, Si470xError<I2C::Error>> {
@@ -133,11 +133,11 @@ where
         Ok(registers)
     }
 
-    async fn read_all_egisters(&mut self) -> Result<Registers, Si470xError<I2C::Error>> {
+    pub async fn read_all_egisters(&mut self) -> Result<Registers, Si470xError<I2C::Error>> {
         self.read_registers(ReadRegIdx::BootConfig).await
     }
 
-    async fn write_registers(
+    pub async fn write_registers(
         &mut self,
         registers: &Registers,
     ) -> Result<(), Si470xError<I2C::Error>> {
@@ -168,7 +168,7 @@ where
     }
 
     pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
-        let registers = self.read_all_egisters().await?;
+        let registers = self.read_registers(ReadRegIdx::DeviceId).await?;
         let reg = registers.device_id();
         Ok(DeviceInfo {
             pn: reg.pn(),
@@ -177,7 +177,7 @@ where
     }
 
     pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
-        let registers = self.read_all_egisters().await?;
+        let registers = self.read_registers(ReadRegIdx::ChipId).await?;
         let reg = registers.chip_id();
         Ok(ChipInfo {
             revision: reg.rev(),
@@ -189,7 +189,7 @@ where
     // Enable or disable the device. Before disabling RDS should be disabled
     // according to the datasheet.
     pub async fn set_enable(&mut self, enable: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
         // Note: Datasheet says "The ENABLE bit should never be written to a 0".
         reg.set_enable(true);
@@ -199,7 +199,7 @@ where
     }
 
     pub async fn set_softmute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
         let mute_disabled = !muted;
         reg.set_dsmute(mute_disabled);
@@ -208,7 +208,7 @@ where
     }
 
     pub async fn set_mute(&mut self, muted: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
         let mute_disabled = !muted;
         reg.set_dmute(mute_disabled);
@@ -217,7 +217,7 @@ where
     }
 
     pub async fn set_mono(&mut self, mono: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
         reg.set_mono(mono);
         registers.set_power_cfg(reg);
@@ -225,7 +225,7 @@ where
     }
 
     pub async fn set_rds_verbose(&mut self, verbose: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
         reg.set_rdsm(verbose);
         registers.set_power_cfg(reg);
@@ -238,7 +238,7 @@ where
         direction: SeekDirection,
         state: SeekState,
     ) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
         reg.set_skmode(mode);
         reg.set_seekup(direction);
@@ -280,7 +280,7 @@ where
     }
 
     pub async fn set_rdsien(&mut self, enabled: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::SysConfig1).await?;
         let mut reg = registers.sys_config1();
         reg.set_rdsien(enabled);
         registers.set_sys_config1(reg);
@@ -288,7 +288,7 @@ where
     }
 
     pub async fn set_stcien(&mut self, enabled: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::SysConfig1).await?;
         let mut reg = registers.sys_config1();
         reg.set_stcien(enabled);
         registers.set_sys_config1(reg);
@@ -296,7 +296,7 @@ where
     }
 
     pub async fn set_gpio2_mode(&mut self, mode: Gpio2Mode) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::SysConfig1).await?;
         let mut reg = registers.sys_config1();
         reg.set_gpio2(mode);
         registers.set_sys_config1(reg);
@@ -305,7 +305,7 @@ where
 
     // Set the radio volume. Volume is 4-bit unsigned.
     pub async fn set_volume(&mut self, volume: u8) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::SysConfig2).await?;
         let mut reg = registers.sys_config2();
         reg.set_volume(volume);
         registers.set_sys_config2(reg);
@@ -316,7 +316,7 @@ where
         &mut self,
         channel_spacing: ChannelSpacing,
     ) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::SysConfig2).await?;
         let mut reg = registers.sys_config2();
         reg.set_space(channel_spacing);
         registers.set_sys_config2(reg);
@@ -325,7 +325,7 @@ where
 
     // Set the RSSI seek threshold.
     pub async fn set_rssi_threshold(&mut self, seekth: u8) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::SysConfig2).await?;
         let mut reg = registers.sys_config2();
         reg.set_seekth(seekth);
         registers.set_sys_config2(reg);
@@ -336,7 +336,7 @@ where
         &mut self,
         enable: bool,
     ) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_all_egisters().await?;
+        let mut registers = self.read_registers(ReadRegIdx::Test1).await?;
         let mut reg = registers.test1();
         reg.set_xoscen(enable);
         registers.set_test1(reg);
