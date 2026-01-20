@@ -16,7 +16,7 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use log::{LevelFilter, info};
-use si470x::{Si470x, reset_radio_for_i2c};
+use si470x::{OSCILLATOR_ENABLE_MIN_DELAY_MS, POWERUP_TIME_MS, Si470x, reset_radio_for_i2c};
 
 extern crate alloc;
 
@@ -84,18 +84,19 @@ async fn main(_spawner: Spawner) -> ! {
 
     let mut dev = Si470x::new(i2c);
 
-    Timer::after(embassy_time::Duration::from_millis(1000)).await; // longer wait
-
     dev.ping().await.unwrap();
     info!("Ping OK");
 
     dev.set_oscillator_enable(true).await.unwrap();
     info!("Oscillator enabled");
-    Timer::after(embassy_time::Duration::from_millis(2000)).await; // longer wait
+    Timer::after(embassy_time::Duration::from_millis(
+        OSCILLATOR_ENABLE_MIN_DELAY_MS as u64,
+    ))
+    .await;
 
     dev.set_enable(true).await.unwrap();
     info!("Radio enabled");
-    Timer::after(embassy_time::Duration::from_millis(1000)).await; // extra wait
+    Timer::after(embassy_time::Duration::from_millis(POWERUP_TIME_MS as u64)).await;
 
     let registers = dev.read_all_registers().await.unwrap();
     let chip_id = registers.chip_id();
