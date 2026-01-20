@@ -241,6 +241,7 @@ pub struct RdsD {
     pub rdsd: B16,
 }
 
+#[derive(Debug)]
 pub struct Registers {
     // Register bytes are ordered IAW ReadRegIdx.
     registers: [u8; 32],
