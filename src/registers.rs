@@ -241,19 +241,6 @@ pub struct RdsD {
     pub rdsd: B16,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct ChipInfo {
-    pub revision: u8,
-    pub device: u8,
-    pub firmware: u8,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub struct DeviceInfo {
-    pub pn: u8,
-    pub mfgid: u16,
-}
-
 pub struct Registers {
     // Register bytes are ordered IAW ReadRegIdx.
     registers: [u8; 32],

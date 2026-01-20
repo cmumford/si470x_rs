@@ -76,13 +76,20 @@ fn main() -> ! {
     info!("Radio enabled");
     delay.delay_millis(1000);
 
-    let chip_info = dev.get_chip_info().unwrap();
-    info!("Chip info: {:?}", chip_info);
+    let registers = dev.read_all_registers().unwrap();
+    let chip_id = registers.chip_id();
+    info!(
+        "Chip ID: rev:0x{:x} dev:0x{:x} firmware:0x{:x}",
+        chip_id.rev(),
+        chip_id.dev(),
+        chip_id.firmware()
+    );
 
-    let device_info = dev.get_device_info().unwrap();
+    let device_id = registers.device_id();
     info!(
         "Device info: pn:0x{:x}, mfgid:0x{:x}",
-        device_info.pn, device_info.mfgid
+        device_id.pn(),
+        device_id.mfgid()
     );
 
     dev.set_seek(SeekMode::Wrap, SeekDirection::Up, SeekState::Enable)

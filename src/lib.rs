@@ -5,5 +5,5 @@ mod registers;
 
 pub use driver::{Si470x, Si470xError, reset_radio_for_i2c};
 pub use registers::{
-    ChipInfo, Gpio2Mode, ReadRegIdx, Registers, SeekDirection, SeekMode, SeekState,
+    ChipId, DeviceId, Gpio2Mode, ReadRegIdx, Registers, SeekDirection, SeekMode, SeekState,
 };

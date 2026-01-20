@@ -97,13 +97,20 @@ async fn main(_spawner: Spawner) -> ! {
     info!("Radio enabled");
     Timer::after(embassy_time::Duration::from_millis(1000)).await; // extra wait
 
-    let chip_info = dev.get_chip_info().await.unwrap();
-    info!("Chip info: {:?}", chip_info);
+    let registers = dev.read_all_registers().await.unwrap();
+    let chip_id = registers.chip_id();
+    info!(
+        "Chip ID: rev:0x{:x} dev:0x{:x} firmware:0x{:x}",
+        chip_id.rev(),
+        chip_id.dev(),
+        chip_id.firmware()
+    );
 
-    let device_info = dev.get_device_info().await.unwrap();
+    let device_id = registers.device_id();
     info!(
         "Device info: pn:0x{:x}, mfgid:0x{:x}",
-        device_info.pn, device_info.mfgid
+        device_id.pn(),
+        device_id.mfgid()
     );
 
     loop {

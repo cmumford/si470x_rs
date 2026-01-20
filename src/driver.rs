@@ -167,25 +167,6 @@ where
         Ok(())
     }
 
-    pub async fn get_device_info(&mut self) -> Result<DeviceInfo, Si470xError<I2C::Error>> {
-        let registers = self.read_registers(ReadRegIdx::DeviceId).await?;
-        let reg = registers.device_id();
-        Ok(DeviceInfo {
-            pn: reg.pn(),
-            mfgid: reg.mfgid(),
-        })
-    }
-
-    pub async fn get_chip_info(&mut self) -> Result<ChipInfo, Si470xError<I2C::Error>> {
-        let registers = self.read_registers(ReadRegIdx::ChipId).await?;
-        let reg = registers.chip_id();
-        Ok(ChipInfo {
-            revision: reg.rev(),
-            device: reg.dev(),
-            firmware: reg.firmware(),
-        })
-    }
-
     // Enable or disable the device. Before disabling RDS should be disabled
     // according to the datasheet.
     pub async fn set_enable(&mut self, enable: bool) -> Result<(), Si470xError<I2C::Error>> {
@@ -276,22 +257,6 @@ where
         creg.set_chan(channel);
         creg.set_tune(true);
         registers.set_channel(creg);
-        self.write_registers(&registers).await
-    }
-
-    pub async fn set_rdsien(&mut self, enabled: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_registers(ReadRegIdx::SysConfig1).await?;
-        let mut reg = registers.sys_config1();
-        reg.set_rdsien(enabled);
-        registers.set_sys_config1(reg);
-        self.write_registers(&registers).await
-    }
-
-    pub async fn set_stcien(&mut self, enabled: bool) -> Result<(), Si470xError<I2C::Error>> {
-        let mut registers = self.read_registers(ReadRegIdx::SysConfig1).await?;
-        let mut reg = registers.sys_config1();
-        reg.set_stcien(enabled);
-        registers.set_sys_config1(reg);
         self.write_registers(&registers).await
     }
 
