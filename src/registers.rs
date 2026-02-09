@@ -247,30 +247,6 @@ pub struct ReadChan {
     pub readchan: B10,
 }
 
-#[bitfield(bits = 16)]
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct RdsA {
-    pub rdsa: B16,
-}
-
-#[bitfield(bits = 16)]
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct RdsB {
-    pub rdsb: B16,
-}
-
-#[bitfield(bits = 16)]
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct RdsC {
-    pub rdsc: B16,
-}
-
-#[bitfield(bits = 16)]
-#[derive(Clone, Copy, PartialEq, Eq)]
-pub struct RdsD {
-    pub rdsd: B16,
-}
-
 #[derive(Debug)]
 pub struct Registers {
     // Register bytes are ordered IAW ReadRegIdx.
@@ -351,27 +327,27 @@ impl Registers {
     }
 
     #[inline]
-    pub fn rdsa_a(&self) -> RdsA {
+    pub fn rdsa_a(&self) -> u16 {
         assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsA as u8);
-        RdsA::from_bytes(self.get_raw(ReadRegIdx::RdsA))
+        u16::from_be_bytes(self.get_raw(ReadRegIdx::RdsA))
     }
 
     #[inline]
-    pub fn rdsa_b(&self) -> RdsB {
+    pub fn rdsa_b(&self) -> u16 {
         assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsB as u8);
-        RdsB::from_bytes(self.get_raw(ReadRegIdx::RdsB))
+        u16::from_be_bytes(self.get_raw(ReadRegIdx::RdsB))
     }
 
     #[inline]
-    pub fn rdsa_c(&self) -> RdsC {
+    pub fn rdsa_c(&self) -> u16 {
         assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsC as u8);
-        RdsC::from_bytes(self.get_raw(ReadRegIdx::RdsC))
+        u16::from_be_bytes(self.get_raw(ReadRegIdx::RdsC))
     }
 
     #[inline]
-    pub fn rdsa_d(&self) -> RdsD {
+    pub fn rdsa_d(&self) -> u16 {
         assert!(self.last_valid_reg as u8 >= ReadRegIdx::RdsD as u8);
-        RdsD::from_bytes(self.get_raw(ReadRegIdx::RdsD))
+        u16::from_be_bytes(self.get_raw(ReadRegIdx::RdsD))
     }
 
     #[inline]
