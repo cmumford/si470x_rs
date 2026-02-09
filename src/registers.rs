@@ -225,6 +225,12 @@ pub enum RdsErrorCnt {
     SixOrMore = 3,   // 6+ errors - too many to correct.
 }
 
+impl RdsErrorCnt {
+    pub fn is_correctable(&self) -> bool {
+        *self != RdsErrorCnt::SixOrMore
+    }
+}
+
 #[bitfield(bits = 16)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct StatusRssi {
