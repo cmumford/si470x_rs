@@ -195,6 +195,15 @@ pub struct BootConfig {
     __: B16,
 }
 
+#[derive(BitfieldSpecifier, Copy, Clone, Debug, PartialEq, Eq)]
+#[bits = 2]
+pub enum RdsErrorCnt {
+    NoErrors = 0,    // Zero errors.
+    OneToTwo = 1,    // 1-2 errors, corrected by radio.
+    ThreeToFive = 2, // 3-5 errors, corrected by radio.
+    SixOrMore = 3,   // 6+ errors - too many to correct.
+}
+
 #[bitfield(bits = 16)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct StatusRssi {
@@ -203,7 +212,7 @@ pub struct StatusRssi {
     pub sf_bl: bool,
     pub afcrl: bool,
     pub rdss: bool,
-    pub blera: B2,
+    pub blera: RdsErrorCnt,
     pub st: bool,
     pub rssi: B8,
 }
@@ -211,9 +220,9 @@ pub struct StatusRssi {
 #[bitfield(bits = 16)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct ReadChan {
-    pub blerb: B2,
-    pub blerc: B2,
-    pub blerd: B2,
+    pub blerb: RdsErrorCnt,
+    pub blerc: RdsErrorCnt,
+    pub blerd: RdsErrorCnt,
     pub readchan: B10,
 }
 
