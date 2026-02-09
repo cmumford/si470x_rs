@@ -29,6 +29,6 @@ pub const POWERUP_TIME_MS: u32 = 110;
 
 pub use driver::{Si470x, Si470xError, reset_radio_for_i2c};
 pub use registers::{
-    ChipId, DeviceId, Gpio2Mode, RdsErrorCnt, ReadRegIdx, Registers, SeekDirection, SeekMode,
-    SeekState,
+    ChipId, DeviceId, Gpio2Mode, InterruptStatus, RdsErrorCnt, RdsMode, RdsState, ReadRegIdx,
+    Registers, SeekDirection, SeekMode, SeekState,
 };

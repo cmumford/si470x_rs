@@ -205,10 +205,10 @@ where
         self.write_registers(&registers).await
     }
 
-    pub async fn set_rds_verbose(&mut self, verbose: bool) -> Result<(), Si470xError<I2C::Error>> {
+    pub async fn set_rds_mode(&mut self, mode: RdsMode) -> Result<(), Si470xError<I2C::Error>> {
         let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
-        reg.set_rdsm(verbose);
+        reg.set_rdsm(mode);
         registers.set_power_cfg(reg);
         self.write_registers(&registers).await
     }

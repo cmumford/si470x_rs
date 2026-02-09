@@ -62,6 +62,21 @@ pub enum SeekState {
     Enable = 0b01,  // Enable seek.
 }
 
+/// See Si4703 datasheet section 4.4
+#[derive(BitfieldSpecifier, Copy, Clone, Debug, PartialEq, Eq)]
+#[bits = 1]
+pub enum RdsMode {
+    Standard = 0, // Disable seek (default)
+    Verbose = 1,  // Enable seek.
+}
+
+#[derive(BitfieldSpecifier, Copy, Clone, Debug, PartialEq, Eq)]
+#[bits = 1]
+pub enum RdsState {
+    Disabled = 0,
+    Enabled = 1,
+}
+
 #[bitfield(bits = 16)]
 pub struct PowerCfg {
     pub dsmute: bool,
@@ -69,7 +84,7 @@ pub struct PowerCfg {
     pub mono: bool,
     #[skip]
     __: bool,
-    pub rdsm: bool,
+    pub rdsm: RdsMode,
     pub skmode: SeekMode,
     pub seekup: SeekDirection,
     pub seek: SeekState,
@@ -113,9 +128,8 @@ pub enum Gpio2Mode {
     High = 0b11,
 }
 
-#[derive(BitfieldSpecifier)]
+#[derive(BitfieldSpecifier, Copy, Clone, Debug, PartialEq, Eq)]
 #[bits = 2]
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Gpio1Mode {
     HighImpedance = 0b00, // High impedance (default).
     __ = 0b01,            // Reserved.
@@ -123,14 +137,21 @@ pub enum Gpio1Mode {
     High = 0b11,
 }
 
+#[derive(BitfieldSpecifier, Copy, Clone, Debug, PartialEq, Eq)]
+#[bits = 1]
+pub enum InterruptStatus {
+    Disabled = 0,
+    Enabled = 1,
+}
+
 #[bitfield(bits = 16)]
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub struct SysConfig1 {
-    pub rdsien: bool,
-    pub stcien: bool,
+    pub rdsien: InterruptStatus,
+    pub stcien: InterruptStatus,
     #[skip]
     __: bool,
-    pub rds: bool,
+    pub rds: RdsState,
     pub de: bool,
     pub agcd: bool,
     #[skip]
