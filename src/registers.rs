@@ -79,12 +79,17 @@ pub enum RdsState {
 
 #[bitfield(bits = 16)]
 pub struct PowerCfg {
+    /// Disable soft mute.
     pub dsmute: bool,
+    /// Disable mute.
     pub dmute: bool,
+    /// Mono
     pub mono: bool,
     #[skip]
     __: bool,
+    /// RDS Mode: standard or verbose.
     pub rdsm: RdsMode,
+    /// Seek mode.
     pub skmode: SeekMode,
     pub seekup: SeekDirection,
     pub seek: SeekState,
