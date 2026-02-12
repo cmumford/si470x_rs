@@ -16,7 +16,7 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use log::{LevelFilter, info};
-use si470x::{OSCILLATOR_ENABLE_MIN_DELAY_MS, POWERUP_TIME_MS, Si470x, reset_radio_for_i2c};
+use si470x::{OSCILLATOR_ENABLE_MIN_DELAY_MS, POWERUP_TIME_MS, Si470x, Tuner, reset_radio_for_i2c};
 
 extern crate alloc;
 

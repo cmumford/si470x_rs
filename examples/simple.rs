@@ -17,7 +17,7 @@ use esp_hal::{
 use log::{LevelFilter, info};
 use si470x::{
     OSCILLATOR_ENABLE_MIN_DELAY_MS, POWERUP_TIME_MS, SeekDirection, SeekMode, SeekState, Si470x,
-    reset_radio_for_i2c,
+    Tuner, reset_radio_for_i2c,
 };
 
 // This creates a default app-descriptor required by the esp-idf bootloader.

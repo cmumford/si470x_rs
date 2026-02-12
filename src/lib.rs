@@ -27,7 +27,7 @@ pub const OSCILLATOR_ENABLE_MIN_DELAY_MS: u32 = 500;
 /// > Guide" for more information.
 pub const POWERUP_TIME_MS: u32 = 110;
 
-pub use driver::{Si470x, Si470xError, reset_radio_for_i2c};
+pub use driver::{Si470x, Si470xError, Tuner, reset_radio_for_i2c};
 pub use registers::{
     ChipId, DeviceId, Gpio2Mode, InterruptStatus, RdsErrorCnt, RdsMode, RdsState, ReadRegIdx,
     Registers, SeekDirection, SeekMode, SeekState,
