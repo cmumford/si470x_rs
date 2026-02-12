@@ -71,3 +71,7 @@ flash-simple-esp32c6-async:
 .PHONY: clean
 clean:
 	cargo clean
+
+.PHONY: docs
+docs:
+	cargo doc --no-deps --document-private-items --open --features=esp32s3,async
