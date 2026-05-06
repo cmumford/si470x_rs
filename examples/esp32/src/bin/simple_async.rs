@@ -12,6 +12,7 @@ use esp_hal::{
     clock::CpuClock,
     gpio::{Level, Output, OutputConfig},
     i2c::master::I2c,
+    interrupt::software::SoftwareInterruptControl,
     time::Rate,
     timer::timg::TimerGroup,
 };
@@ -35,6 +36,11 @@ async fn main(_spawner: Spawner) -> ! {
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
+
+    // Start RTOS
+    let timg0 = TimerGroup::new(peripherals.TIMG0);
+    let software_interrupt = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
+    esp_rtos::start(timg0.timer0, software_interrupt.software_interrupt0);
 
     cfg_if::cfg_if! {
         if #[cfg(feature = "esp32c6")] {
@@ -60,17 +66,6 @@ async fn main(_spawner: Spawner) -> ! {
         .unwrap();
 
     esp_alloc::heap_allocator!(size: 32 * 1024);
-
-    let timg1 = TimerGroup::new(peripherals.TIMG1);
-    cfg_if::cfg_if! {
-        if #[cfg(any(feature = "esp32",feature = "esp32s2",feature = "esp32s3"))] {
-            esp_rtos::start(timg1.timer0);
-        } else {
-            use esp_hal::interrupt::software::SoftwareInterruptControl;
-            let software_interrupt = SoftwareInterruptControl::new(peripherals.SW_INTERRUPT);
-            esp_rtos::start(timg1.timer0, software_interrupt.software_interrupt0);
-        }
-    }
 
     info!("[main] Initializing I2C");
     let i2c = I2c::new(
