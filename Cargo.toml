@@ -5,7 +5,7 @@ edition = "2024"
 authors = ["Chris Mumford <cmumford@cmumford.com>"]
 description = "Pure Rust Si470x FM radio driver (blocking + async support)"
 readme = "README.md"
-keywords = ["radio", "fm", "am", "driver", "si4702", "si4703"]
+keywords = ["radio", "fm", "driver", "si4702", "si4703"]
 
 [dependencies]
 embedded-hal = "1.0"
@@ -15,18 +15,18 @@ modular-bitfield-msb = "0.11.2"
 
 [dev-dependencies]
 cfg-if = "1.0"
-embassy-executor = { version = "0.9.1" }
-embassy-time = { version = "0.5.0", features = ["generic-queue-8"] }
-esp-alloc = "0.9.0"
-esp-backtrace = { version = "0.18.1", features = ["panic-handler", "println"] }
-esp-bootloader-esp-idf = "0.4.0"
-esp-hal = { version = "1.0.0", features = [
+embassy-executor = { version = "0.10.0" }
+embassy-time = { version = "0.5.1", features = ["generic-queue-8"] }
+esp-alloc = "0.10.0"
+esp-backtrace = { version = "0.19.0", features = ["panic-handler", "println"] }
+esp-bootloader-esp-idf = "0.5.0"
+esp-hal = { version = "1.1.0", features = [
     "exception-handler",
     "log-04",
     "unstable",
 ] }
-esp-println = { version = "0.16.1", features = ["log-04"] }
-esp-rtos = { version = "0.2.0", features = ["embassy", "log-04"] }
+esp-println = { version = "0.17.0", features = ["log-04"] }
+esp-rtos = { version = "0.3.0", features = ["embassy", "log-04"] }
 log = "0.4"
 
 [features]
@@ -91,9 +91,3 @@ required-features = ["sync"]
 name = "simple_async"
 path = "examples/simple_async.rs"
 required-features = ["async"]
-
-
-# [[example]]
-# name = "linux_async"
-# path = "examples/linux_async.rs"
-# required-features = ["async"]
