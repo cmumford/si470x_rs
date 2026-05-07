@@ -52,16 +52,17 @@ impl<E: fmt::Debug> fmt::Display for Si470xError<E> {
     }
 }
 
-// Resets the Si470x radio chip into 2-wire (I²C) mode using what the datasheet
-// calls busmode selection method 1.
-//
-// # Type parameters
-// - `RST`: Reset pin (active low)
-// - `SDA`: SDA pin
-// - `SEN`: SEN pin
-// - `D`: Delay provider
-//
-// All pins must implement `OutputPin`.
+/// Resets the Si470x radio chip into 2-wire (I²C) mode.
+///
+/// This uses what the datasheet calls busmode selection method 1.
+///
+/// # Type parameters
+/// - `RST`: Reset pin (active low)
+/// - `SDA`: SDA pin
+/// - `SEN`: SEN pin
+/// - `D`: Delay provider
+///
+/// All pins must implement `OutputPin`.
 #[maybe_async(AFIT)]
 pub async fn reset_radio_for_i2c<RST, SDA, SEN, D>(
     rst: &mut RST,
@@ -122,6 +123,7 @@ pub trait Tuner<E> {
     async fn ping(&mut self) -> Result<(), Si470xError<E>>;
 }
 
+/// High-level driver for the Si470x FM tuner family.
 pub struct Si470x<I2C>
 where
     I2C: I2c,
@@ -138,8 +140,8 @@ where
         Self { i2c }
     }
 
-    // Enable or disable the device. Before disabling RDS should be disabled
-    // according to the datasheet.
+    /// Enable or disable the device. Before disabling RDS should be disabled
+    /// according to the datasheet.
     pub async fn set_enable(&mut self, enable: bool) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
@@ -150,6 +152,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Set state of the soft mute.
     pub async fn set_softmute(&mut self, muted: bool) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
@@ -159,6 +162,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Set state of the hard mute.
     pub async fn set_mute(&mut self, muted: bool) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
@@ -168,6 +172,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Set state of the mono mode.
     pub async fn set_mono(&mut self, mono: bool) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
@@ -176,6 +181,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Set the RDS mode.
     pub async fn set_rds_mode(&mut self, mode: RdsMode) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::PowerCfg).await?;
         let mut reg = registers.power_cfg();
@@ -184,6 +190,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Set the seek parameters.
     pub async fn set_seek(
         &mut self,
         mode: SeekMode,
@@ -199,6 +206,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Clear the tune and seek bits. This should be called after a tune or seek operation is complete.
     pub async fn clear_tune_seek_bits(&mut self) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_all_registers().await?;
         {
@@ -214,6 +222,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Set the channel. The channel number is based on the channel spacing and the band limits.
     pub async fn set_channel(&mut self, channel: u16) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_all_registers().await?;
         let mut creg = registers.channel();
@@ -231,7 +240,7 @@ where
         self.write_registers(&registers).await
     }
 
-    // Set the radio volume. Volume is 4-bit unsigned.
+    /// Set the radio volume. Volume is 4-bit unsigned.
     pub async fn set_volume(&mut self, volume: u8) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::SysConfig2).await?;
         let mut reg = registers.sys_config2();
@@ -240,6 +249,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Set the channel spacing. This affects how the channel number is interpreted when tuning.
     pub async fn set_channel_spacing(
         &mut self,
         channel_spacing: ChannelSpacing,
@@ -251,7 +261,7 @@ where
         self.write_registers(&registers).await
     }
 
-    // Set the RSSI seek threshold.
+    /// Set the RSSI seek threshold.
     pub async fn set_rssi_threshold(&mut self, seekth: u8) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::SysConfig2).await?;
         let mut reg = registers.sys_config2();
@@ -260,6 +270,7 @@ where
         self.write_registers(&registers).await
     }
 
+    /// Enable or disable the oscillator.
     pub async fn set_oscillator_enable(&mut self, enable: bool) -> Result<(), Si470xError<E>> {
         let mut registers = self.read_registers(ReadRegIdx::Test1).await?;
         let mut reg = registers.test1();
@@ -351,6 +362,7 @@ where
         Ok(())
     }
 
+    /// Simple I²C ping / presence check (write zero bytes).
     async fn ping(&mut self) -> Result<(), Si470xError<E>> {
         self.i2c
             .write(SI470X_I2C_ADDRESS, &[])

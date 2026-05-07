@@ -2,8 +2,8 @@
 
 use modular_bitfield_msb::prelude::*;
 
-// When reading from the Si470x, reading starts at register 0Ah (STATUSRSSI), and
-// reads through to 0Fh (RDSD), and the wraps around to 00h through 09h.
+/// When reading from the Si470x, reading starts at register 0Ah (STATUSRSSI), and
+/// reads through to 0Fh (RDSD), and the wraps around to 00h through 09h.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub enum ReadRegIdx {
@@ -25,6 +25,7 @@ pub enum ReadRegIdx {
     BootConfig = 0x0F,
 }
 
+/// Part no. and MFG ID.
 #[bitfield(bits = 16)]
 pub struct DeviceId {
     pub pn: B4,
@@ -37,6 +38,7 @@ impl Default for DeviceId {
     }
 }
 
+/// Chip revision, device type, and firmware version.
 #[bitfield(bits = 16)]
 pub struct ChipId {
     pub rev: B6,
@@ -50,6 +52,7 @@ impl Default for ChipId {
     }
 }
 
+/// Seek mode: wrap or stop at limit.
 #[derive(BitfieldSpecifier)]
 #[bits = 1]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -58,6 +61,7 @@ pub enum SeekMode {
     Stop = 0b01, // stop at limit.
 }
 
+/// Seek direction: up or down.
 #[derive(BitfieldSpecifier)]
 #[bits = 1]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -66,6 +70,7 @@ pub enum SeekDirection {
     Up = 0b01,   // Seek up.
 }
 
+/// Seek state: enable or disable.
 #[derive(BitfieldSpecifier)]
 #[bits = 1]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -74,6 +79,8 @@ pub enum SeekState {
     Enable = 0b01,  // Enable seek.
 }
 
+/// RDS mode: standard or verbose.
+///
 /// See Si4703 datasheet section 4.4
 #[derive(BitfieldSpecifier, Copy, Clone, Debug, PartialEq, Eq)]
 #[bits = 1]
@@ -82,6 +89,7 @@ pub enum RdsMode {
     Verbose = 1,  // Enable seek.
 }
 
+/// RDS state: disable or enable.
 #[derive(BitfieldSpecifier, Copy, Clone, Debug, PartialEq, Eq)]
 #[bits = 1]
 pub enum RdsState {
@@ -89,6 +97,7 @@ pub enum RdsState {
     Enabled = 1,
 }
 
+/// Power configuration register fields.
 #[bitfield(bits = 16)]
 pub struct PowerCfg {
     /// Disable soft mute.
