@@ -24,39 +24,39 @@ jobs:
 
       - name: Check
         run: |
-          cargo check --features use_sync
-          cargo check --features use_async 
+          cargo check --features sync
+          cargo check --features async 
 
       - name: Check (Examples)
         working-directory: examples/esp32
         run: |
-          cargo check --release --features esp32c6,use_sync --target riscv32imac-unknown-none-elf
-          cargo check --release --features esp32c6,use_async --target riscv32imac-unknown-none-elf
+          cargo check --release --features esp32c6,sync --target riscv32imac-unknown-none-elf
+          cargo check --release --features esp32c6,async --target riscv32imac-unknown-none-elf
 
       - name: Clippy
         run: |
-          cargo clippy --features use_sync -- -D clippy::pedantic
-          cargo clippy --features use_async -- -D clippy::pedantic
+          cargo clippy --features sync -- -D clippy::pedantic
+          cargo clippy --features async -- -D clippy::pedantic
 
       - name: Clippy (Examples)
         working-directory: examples/esp32
         run: |
-          cargo clippy --example simple --release --features esp32c6,use_sync --target riscv32imac-unknown-none-elf -- -D clippy::pedantic
-          cargo clippy --example simple_async --release --features esp32c6,use_async --target riscv32imac-unknown-none-elf -- -D clippy::pedantic
+          cargo clippy --example simple --release --features esp32c6,sync --target riscv32imac-unknown-none-elf -- -D clippy::pedantic
+          cargo clippy --example simple_async --release --features esp32c6,async --target riscv32imac-unknown-none-elf -- -D clippy::pedantic
 
       - name: Build
         run: |
-          cargo build --features use_sync
-          cargo build --features use_async
+          cargo build --features sync
+          cargo build --features async
 
       - name: Build (Examples)
         working-directory: examples/esp32
         run: |
-          cargo build --example simple --release --features esp32c6,use_sync --target riscv32imac-unknown-none-elf
-          cargo build --example simple_async --release --features esp32c6,use_async --target riscv32imac-unknown-none-elf
+          cargo build --example simple --release --features esp32c6,sync --target riscv32imac-unknown-none-elf
+          cargo build --example simple_async --release --features esp32c6,async --target riscv32imac-unknown-none-elf
 
       - name: Run tests
         run: cargo +stable test --features=test --verbose
 
       - name: Docs
-        run: cargo doc --no-deps --features use_async
+        run: cargo doc --no-deps --features async

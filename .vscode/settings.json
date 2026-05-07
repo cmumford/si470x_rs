@@ -7,7 +7,7 @@
     "rust-analyzer.cargo.target": "riscv32imac-unknown-none-elf",
     "rust-analyzer.cargo.features": [
         "esp32c6",
-        "use_async",
+        "async",
     ],
     "rust-analyzer.check.command": "clippy",
     "rust-analyzer.server.extraEnv": {
