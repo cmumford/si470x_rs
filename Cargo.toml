@@ -8,8 +8,8 @@ readme = "README.md"
 keywords = ["radio", "fm", "driver", "si4702", "si4703"]
 categories = ["embedded", "no-std", "hardware-support"]
 license = "MIT"
-homepage = "https://github.com/cmumford/si470x"
-repository = "https://github.com/cmumford/si470x"
+homepage = "https://github.com/cmumford/si470x_rs"
+repository = "https://github.com/cmumford/si470x_rs"
 
 [dependencies]
 embedded-hal = "1.0"
