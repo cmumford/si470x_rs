@@ -31,11 +31,23 @@ pub struct DeviceId {
     pub mfgid: B12,
 }
 
+impl Default for DeviceId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[bitfield(bits = 16)]
 pub struct ChipId {
     pub rev: B6,
     pub dev: B4,
     pub firmware: B6,
+}
+
+impl Default for ChipId {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[derive(BitfieldSpecifier)]
@@ -274,7 +286,7 @@ impl Registers {
     pub const fn new(last_valid_reg: ReadRegIdx) -> Self {
         Self {
             registers: [0u8; 32],
-            last_valid_reg: last_valid_reg,
+            last_valid_reg,
         }
     }
 
