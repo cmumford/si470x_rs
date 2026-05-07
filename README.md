@@ -1,5 +1,5 @@
 # si470x
-[![CI](https://github.com/cmumford/si470x/actions/workflows/ci.yml/badge.svg)](https://github.com/cmumford/si470x/actions/workflows/ci.yml)
+[![CI](https://github.com/cmumford/si470x_rs/actions/workflows/ci.yml/badge.svg)](https://github.com/cmumford/si470x_rs/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A pure Rust Si470x radio IC driver.
