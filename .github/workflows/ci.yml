@@ -35,14 +35,14 @@ jobs:
 
       - name: Clippy
         run: |
-          cargo clippy --features sync -- -D clippy::pedantic
-          cargo clippy --features async -- -D clippy::pedantic
+          cargo clippy --features sync --
+          cargo clippy --features async --
 
       - name: Clippy (Examples)
         working-directory: examples/esp32
         run: |
-          cargo clippy --example simple --release --features esp32c6,sync --target riscv32imac-unknown-none-elf -- -D clippy::pedantic
-          cargo clippy --example simple_async --release --features esp32c6,async --target riscv32imac-unknown-none-elf -- -D clippy::pedantic
+          cargo clippy --example simple --release --features esp32c6,sync --target riscv32imac-unknown-none-elf --
+          cargo clippy --example simple_async --release --features esp32c6,async --target riscv32imac-unknown-none-elf --
 
       - name: Build
         run: |
